@@ -1,0 +1,6 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="icons">
+        <file alias="unifi-search.ico">unifi-search.ico</file>
+    </qresource>
+</RCC>

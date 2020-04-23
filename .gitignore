@@ -1,0 +1,4 @@
+*.pyc
+__pychache__/
+build/
+dist/
