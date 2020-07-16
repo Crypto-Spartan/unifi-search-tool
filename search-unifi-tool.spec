@@ -3,8 +3,8 @@
 block_cipher = None
 
 
-a = Analysis(['search-unifi-tool-generic.py'],
-             pathex=['C:\\Users\\tyler\\Documents\\search unifi tool'],
+a = Analysis(['search-unifi-tool.py'],
+             pathex=['D:\\Documents (D)\\PythonProjects\\unifi-search-tool'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -19,15 +19,19 @@ pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,
           [],
-          name='search-unifi-tool-generic',
+          exclude_binaries=True,
+          name='search-unifi-tool',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          upx_exclude=[],
-          runtime_tmpdir=None,
           console=False , icon='unifi-search.ico')
+coll = COLLECT(exe,
+               a.binaries,
+               a.zipfiles,
+               a.datas,
+               strip=False,
+               upx=True,
+               upx_exclude=[],
+               name='search-unifi-tool')
