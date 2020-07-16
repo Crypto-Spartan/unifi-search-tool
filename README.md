@@ -1,4 +1,4 @@
-# unifi-search-tool
+# unifi-search-tool v1.3
 Tool to search for device by MAC Address across sites within a Unifi controller
 
 ### How to Use
