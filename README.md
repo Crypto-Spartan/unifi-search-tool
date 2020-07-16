@@ -16,7 +16,7 @@ Requirements: PyQt5, unifi_api, pyinstaller
 
 2. Open up a terminal in the directory
 
-3. Run ```pyinstaller --onefile --windowed --icon=unifi-search.ico search-unifi-tool-IP.py``` in the terminal
+3. Run ```pyinstaller --onefile --windowed --icon=unifi-search.ico search-unifi-tool.py``` in the terminal
 
 4. Go to the ```dist``` directory to find the .exe file
 
