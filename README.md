@@ -10,7 +10,7 @@ Un-comment the line, and put in the domain of your unifi controller. This will p
 
 ## Build From Source
 
-Requirements: PyQt5, unifi_api, pyinstaller
+Requirements: PyQt5, pyinstaller, [unifi-python-api](https://github.com/r4mmer/unifi_python_api)
 
 1. Download the Zip of the source files and extract it
 
