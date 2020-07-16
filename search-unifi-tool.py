@@ -20,7 +20,7 @@ app = QApplication(sys.argv)
 
 window = QWidget()
 window.setWindowTitle('Unifi Search Tool')
-window.resize(300,150)
+window.resize(400,200)
 
 layout = QGridLayout()
 
