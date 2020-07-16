@@ -4,7 +4,7 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{06663F0D-AA93-4C3B-BCA4-D2293695D1B8}
+AppId={{FBAD78AD-B339-4E72-AB00-FE0B4070A440}
 AppName=Unifi Search Tool
 AppVersion=1.2.3
 ;AppVerName=Unifi Search Tool 1.2.3
@@ -17,7 +17,6 @@ DisableProgramGroupPage=yes
 ; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check.
 UsedUserAreasWarning=no
 LicenseFile=D:\Documents (D)\PythonProjects\unifi-search-tool\LICENSE
-InfoAfterFile=D:\Documents (D)\PythonProjects\unifi-search-tool\README.md
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
@@ -34,15 +33,15 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
 
 [Files]
-Source: "D:\Documents (D)\PythonProjects\unifi-search-tool\build\search-unifi-tool\search-unifi-tool.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Documents (D)\PythonProjects\unifi-search-tool\dist\search-unifi-tool\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\Documents (D)\PythonProjects\unifi-search-tool\build\unifi-search-tool\unifi-search-tool.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\Documents (D)\PythonProjects\unifi-search-tool\dist\unifi-search-tool\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{autoprograms}\Unifi Search Tool"; Filename: "{app}\search-unifi-tool.exe"
-Name: "{autodesktop}\Unifi Search Tool"; Filename: "{app}\search-unifi-tool.exe"; Tasks: desktopicon
+Name: "{autoprograms}\Unifi Search Tool"; Filename: "{app}\unifi-search-tool.exe"
+Name: "{autodesktop}\Unifi Search Tool"; Filename: "{app}\unifi-search-tool.exe"; Tasks: desktopicon
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Unifi Search Tool"; Filename: "{app}\search-unifi-tool.exe"; Tasks: quicklaunchicon
 
 [Run]
-Filename: "{app}\search-unifi-tool.exe"; Description: "{cm:LaunchProgram,Unifi Search Tool}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\unifi-search-tool.exe"; Description: "{cm:LaunchProgram,Unifi Search Tool}"; Flags: nowait postinstall skipifsilent
 

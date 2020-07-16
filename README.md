@@ -1,5 +1,5 @@
-# unifi-search-tool v1.3
-Tool to search for device by MAC Address across sites within a Unifi controller
+# Unifi Search Tool v1.3
+Does your unifi controller have lots of sites? Do you frequently have equipment returned from those sites and you can't remember where it's adopted in the controller? Enter Unifi Search Tool.
 
 ### How to Use
 
