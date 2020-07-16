@@ -1,7 +1,7 @@
 # unifi-search-tool
 Tool to search for device by MAC Address across sites within a Unifi controller
 
-## How to Use
+### How to Use
 
 ![example](https://raw.githubusercontent.com/Crypto-Spartan/unifi-search-tool/master/screenshots/example.png "example")
 
@@ -17,7 +17,9 @@ Tool to search for device by MAC Address across sites within a Unifi controller
 
 The tool will tell you which site in the controller that the device was adopted to. If it hasn't been adopted, the tool will tell you that the device could not be found.
 
-## Add Your Own Defaults
+## **Advanced**
+
+### Add Your Own Defaults
 
 These instructions are for those that would like to add in their own defaults so that they don't need to re-enter their credentials or controller URL each time the program is opened.
 
@@ -29,7 +31,7 @@ These instructions are for those that would like to add in their own defaults so
 
 3. Re-compile the code using the instructions listed in [Build From Source](#build-from-source)
 
-## Build From Source
+### Build From Source
 
 Requirements: PyQt5, pyinstaller, [unifi-python-api](https://github.com/r4mmer/unifi_python_api)
 
