@@ -1,4 +1,4 @@
-# Unifi Search Tool v1.3
+# Unifi Search Tool v1.3 - Download [Here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/latest)
 Does your unifi controller have lots of sites? Do you frequently have equipment returned from those sites and you can't remember where it's adopted in the controller? Enter Unifi Search Tool.
 
 ### How to Use
