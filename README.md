@@ -6,7 +6,7 @@ Tool to search for device by MAC Address across sites within a Unifi controller
 1. Edit the line in ```search-unifi-tool.py``` that is commented out. Currently, it looks like this: ```#server_input.setText('https://<your_unifi_domain_here>:8443')``` 
 Un-comment the line, and put in the domain of your unifi controller. This will place the url into the ```Server URL``` field without needing to type it in each time the application is launched.
 
-2. Re-compile the code using the instructions listed in Build From Source
+2. Re-compile the code using the instructions listed in [Build From Source](#Build From Source)
 
 ## Build From Source
 
