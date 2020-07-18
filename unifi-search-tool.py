@@ -77,7 +77,7 @@ def on_search_click():
             QMessageBox.about(window, "Found", f'The device with MAC {mac_input.text()} belongs to the "{site_name}" site.')
 
     else:
-        pass
+        QMessageBox.warning(window, "Error", "Unable to login")
     
 button_search.clicked.connect(on_search_click)
 
