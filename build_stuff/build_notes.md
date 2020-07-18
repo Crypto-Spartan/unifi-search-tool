@@ -11,3 +11,5 @@
 1. Open teminal in directory
 2. Run `pyinstaller --windowed --onefile --icon=unifi-search.ico search-unifi-tool.py`
 3. Result will be in `<dir>/build/unifi-search-tool.exe`
+
+Once builds are complete, update readme and push. Then a release can be created.
