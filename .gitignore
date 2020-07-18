@@ -1,6 +1,6 @@
 *.pyc
 *.spec
-__pychache__/
+__pycache__/
 build/
 dist/
 build_stuff/output/
