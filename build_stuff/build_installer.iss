@@ -6,8 +6,8 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{FBAD78AD-B339-4E72-AB00-FE0B4070A440}
 AppName=Unifi Search Tool
-AppVersion=1.2.3
-;AppVerName=Unifi Search Tool 1.2.3
+AppVersion=1.3.2
+;AppVerName=Unifi Search Tool 1.3.2
 AppPublisher=Crypto-Spartan
 AppPublisherURL=https://github.com/Crypto-Spartan/unifi-search-tool
 AppSupportURL=https://github.com/Crypto-Spartan/unifi-search-tool
