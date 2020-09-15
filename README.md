@@ -1,4 +1,4 @@
-# Unifi Search Tool v1.3.2 - Download [Here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/latest)
+# Unifi Search Tool v1.4 - Download [Here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/latest)
 Does your unifi controller have lots of sites? Do you frequently have equipment returned from those sites and you can't remember where it's adopted in the controller? Enter Unifi Search Tool.
 
 ### How to Use
@@ -19,17 +19,19 @@ The tool will tell you which site in the controller that the device was adopted 
 
 ## **Advanced**
 
-### Add Your Own Defaults
+### NEW - Pre-populate username, password, & URL fields
 
-These instructions are for those that would like to add in their own defaults so that they don't need to re-enter their credentials or controller URL each time the program is opened.
+These instructions are for those that would like to add in their own defaults so that they don't need to re-enter their credentials or controller URL each time the program is opened. (This will only work for the installed version unless you decide to build the portable version from source.)
 
 #### NOTE: If you choose to do this and credentials are stolen, I am not responsible. This is at your own risk.
 
-1. Find the commented lines in each block of code that relates to the specific field you would like to change. It looks like this: ```#user_input.setText('<your_username_here>')```
+1. Find `config.txt` within the install folder. (Default is C:\Program Files (x86)\Unifi Search Tool)
 
-2. Un-comment the line, and modify the `<your_<>_here>` to whatever you would like it to be. Save the file.
+2. Add in your own values to the right of the `=` symbol
 
-3. Re-compile the code using the instructions listed in [Build From Source](#build-from-source)
+3. Save config.txt
+
+Next time Unifi Search Tool is launched, it will have new pre-populated fields.
 
 ### Build From Source
 
@@ -39,8 +41,8 @@ Requirements: PyQt5, pyinstaller, [unifi-python-api](https://github.com/r4mmer/u
 
 2. Open up a terminal in the directory
 
-3. Run ```pyinstaller --onefile --windowed --icon=unifi-search.ico search-unifi-tool.py``` in the terminal
+3. Run `pyinstaller --onefile --windowed --icon=unifi-search.ico search-unifi-tool.py` in the terminal
 
-4. Go to the ```dist``` directory to find the .exe file
+4. Go to the `dist` directory to find the .exe file
 
-NOTE: If you omit the ```--onefile``` argument, it will provide the application and its subdirectories. The application will still function the same, everything will just be unpacked instead of in a single .exe file.
+NOTE: If you omit the `--onefile` argument, it will provide the application and its subdirectories. The application will still function the same, everything will just be unpacked instead of in a single .exe file.
