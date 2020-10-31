@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Unifi Search Tool"
-#define MyAppVersion "1.4.0"
+#define MyAppVersion "1.4.1"
 #define MyAppPublisher "CryptoSpartan"
 #define MyAppURL "https://github.com/Crypto-Spartan/unifi-search-tool"
 #define MyAppExeName "unifi-search-tool.exe"

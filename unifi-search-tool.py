@@ -87,7 +87,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     window = QWidget()
-    window.setWindowTitle('Unifi Search Tool - v1.4.0')
+    window.setWindowTitle('Unifi Search Tool - v1.4.1')
     window.resize(400,200)
 
     layout = QGridLayout()
