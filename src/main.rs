@@ -1,7 +1,3 @@
-/*fn main() {
-    println!("Hello, world!");
-}*/
-
 //https://ubntwiki.com/products/software/unifi-controller/api
 
 use std::time::Duration;
@@ -62,55 +58,23 @@ fn login_with_client(username: &str, password: &str, base_url: &str) -> Option<C
 }
 
 
-fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str) -> Option<UnifiDevice> {    
+fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str) -> Option<UnifiDevice> {
     
-
-    /*let res = client.get("https://unifipro.infopathways.com:8443/proxy/network/status")
-        //.json(&login_data)
-        //.basic_auth("admin", Some("InfoPathway$"))
-        .send().expect("failed client post");
-    
-    dbg!(res);*/
-
-    /*let test = client.post("https://unifipro.infopathways.com:8443/api/login")
-                    .header(REFERER, "/login")
-                    .json(&login_data)
-                    .basic_auth("admin", Some("InfoPathway$"))
-                    .build();
-
-    dbg!(test);*/
-    
-    
-
-    //dbg!(login);
-
     let sites_get = client.get(format!("{}/api/self/sites", base_url))
         .send().expect("failed sites get request");
     let sites_raw = sites_get.text().expect("failed to read result of sites get request");
-    
     let sites_serde: Value = serde_json::from_str(&sites_raw).unwrap();
-    //let json_object = &serde_object["data"][0];
-    //dbg!(&serde_object);
-
     let unifi_sites = sites_serde["data"].as_array().unwrap();
-    //dbg!(unifi_sites);
-
-    let mut found_devices: Vec<UnifiDevice> = Vec::with_capacity(1);
 
     for site in unifi_sites {
-        //dbg!(site);
         let site_code = site["name"].as_str().unwrap();
         let site_desc = site["desc"].as_str().unwrap();
-        dbg!(&site_desc);
         
         let devices_get = client.get(format!("{}/api/s/{}/stat/device-basic", base_url, site_code))
         .send().expect("failed devices get request");
         let devices_raw = devices_get.text().expect("failed to read result of devices get request");
         let devices_serde: Value = serde_json::from_str(&devices_raw).unwrap();
-        //dbg!(&devices_serde);
         let site_devices = &devices_serde["data"].as_array().unwrap();
-        //dbg!(site_devices);
-        println!();
         
         let mut state: String;
         
