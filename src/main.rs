@@ -18,7 +18,8 @@ fn main() {
     let username = "admin";
     let password = rpassword::prompt_password("Unifi Controller password: ").unwrap();
     let base_url = "https://unifipro.infopathways.com:8443";
-    let mac_to_search = "18:e8:29:60:ca:dc";
+    //let mac_to_search = "18:e8:29:60:ca:dc";
+    let mac_to_search = "24:5a:4c:52:7e:dc";
 
     if let Some(client) = login_with_client(username, &password, base_url) {
         
@@ -66,6 +67,12 @@ fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str) -> Opt
     let sites_serde: Value = serde_json::from_str(&sites_raw).unwrap();
     let unifi_sites = sites_serde["data"].as_array().unwrap();
 
+    /*for site in unifi_sites {
+        dbg!(site);
+    }*/
+    //panic!("panic!");
+    
+
     for site in unifi_sites {
         let site_code = site["name"].as_str().unwrap();
         let site_desc = site["desc"].as_str().unwrap();
@@ -75,12 +82,22 @@ fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str) -> Opt
         let devices_raw = devices_get.text().expect("failed to read result of devices get request");
         let devices_serde: Value = serde_json::from_str(&devices_raw).unwrap();
         let site_devices = &devices_serde["data"].as_array().unwrap();
+
+        if "k0aikan6" == site_code {
+            dbg!(&devices_raw);
+            dbg!(&devices_serde);
+            dbg!(&site_devices);
+        }
         
         let mut state: String;
         
         for device in site_devices.into_iter() {
+            if "k0aikan6" == site_code {
+                dbg!(&device);
+            }
+            
             if let Value::String(mac) = &device["mac"] {
-                if mac_to_search == mac {                    
+                if mac_to_search == mac.to_lowercase() {                    
                     
                     if let Some(i) = device["state"].as_i64() {
                         if i == 1 {
@@ -103,6 +120,8 @@ fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str) -> Opt
                                 state
                             }
                         )
+                    } else {
+                        dbg!("FLAG");
                     }
                 }
             }
