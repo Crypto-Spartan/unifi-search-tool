@@ -3,7 +3,7 @@ Does your unifi controller have lots of sites? Do you frequently have equipment 
 
 ### How to Use
 
-![examplev2](https://raw.githubusercontent.com/Crypto-Spartan/unifi-search-tool/rust_rewrite/screenshots/examplev2.PNG "examplev2")
+![examplev2](https://raw.githubusercontent.com/Crypto-Spartan/unifi-search-tool/master/screenshots/examplev2.png "examplev2")
 
 1. Enter your username & password for your Unifi Controller
 
@@ -37,7 +37,7 @@ Next time Unifi Search Tool is launched, it will have new pre-populated fields.
 
 ### Build From Source
 
-\* Requires Rust 1.65 or higher \*
+![Minimum Rust: 1.65](https://img.shields.io/badge/Minimum%20Rust%20Version-1.65-brightgreen.svg)
 
 1. Download the Zip of the source files and extract it
 
