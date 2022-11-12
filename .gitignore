@@ -1,6 +1,2 @@
-*.pyc
-*.spec
-__pycache__/
-build/
-dist/
-build_stuff/output/
+target/
+.cargo/

@@ -1,9 +1,9 @@
-# Unifi Search Tool v1.4.1 - Download [Here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/latest)
+# Unifi Search Tool v2.0.0 - Download [Here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/latest)
 Does your unifi controller have lots of sites? Do you frequently have equipment returned from those sites and you can't remember where it's adopted in the controller? Enter Unifi Search Tool.
 
 ### How to Use
 
-![example](https://raw.githubusercontent.com/Crypto-Spartan/unifi-search-tool/master/screenshots/example.png "example")
+![examplev2](https://raw.githubusercontent.com/Crypto-Spartan/unifi-search-tool/master/screenshots/examplev2.png "examplev2")
 
 1. Enter your username & password for your Unifi Controller
 
@@ -19,7 +19,9 @@ The tool will tell you which site in the controller that the device was adopted 
 
 ## **Advanced**
 
-### NEW - Pre-populate username, password, & URL fields
+### Pre-populate username, password, & URL fields
+
+**\*\*\* This feature is not functional in the 2.0.0 release. It is planned to be added in the 2.1.0 release. If you require the pre-populated fields, you can download v1.4.1 [here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/tag/1.4.1) \*\*\***
 
 These instructions are for those that would like to add in their own defaults so that they don't need to re-enter their credentials or controller URL each time the program is opened. (This will only work for the installed version unless you decide to build the portable version from source.)
 
@@ -35,14 +37,35 @@ Next time Unifi Search Tool is launched, it will have new pre-populated fields.
 
 ### Build From Source
 
-Requirements: PyQt5, pyinstaller, [unifi-python-api](https://github.com/r4mmer/unifi_python_api)
+![Minimum Rust: 1.65](https://img.shields.io/badge/Minimum%20Rust%20Version-1.65-brightgreen.svg)
 
 1. Download the Zip of the source files and extract it
 
 2. Open up a terminal in the directory
 
-3. Run `pyinstaller --onefile --windowed --icon=unifi-search.ico search-unifi-tool.py` in the terminal
+3. Run `cargo build --release` in the terminal
 
-4. Go to the `dist` directory to find the .exe file
+5. Go to the `target/release` directory to find the unifi-search-tool.exe file
 
-NOTE: If you omit the `--onefile` argument, it will provide the application and its subdirectories. The application will still function the same, everything will just be unpacked instead of in a single .exe file.
+### If you would like to optimize the binary for size
+
+1. Install the appropriate toolchain and the rust-src component
+```bash
+$ rustup toolchain install nightly
+$ rustup component add rust-src --toolchain nightly
+```
+2. Find your host's target triple
+```bash 
+$ rustc -vV
+...
+host: x86_64-unknown-linux-gnu
+```
+3. Run the build command
+```bash
+# Use that target triple when building with build-std.
+# Add the =std,panic_abort to the option to make panic = "abort" Cargo.toml option work.
+# See: https://github.com/rust-lang/wg-cargo-std-aware/issues/56
+$ cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort --target x86_64-unknown-linux-gnu --release
+```
+
+- see https://github.com/johnthagen/min-sized-rust for more details
