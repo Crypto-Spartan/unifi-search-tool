@@ -35,7 +35,7 @@ These instructions are for those that would like to add in their own defaults so
 
 Next time Unifi Search Tool is launched, it will have new pre-populated fields.
 
-### Build From Source
+## Build From Source
 
 ![Minimum Rust: 1.65](https://img.shields.io/badge/Minimum%20Rust%20Version-1.65-brightgreen.svg)
 
