@@ -6,11 +6,12 @@ mod unifi;
 use gui::GuiApp;
 
 fn main() {
-    let icon = load_icon(r"src\unifi-search.ico");
+    const IMAGE: &[u8] = include_bytes!("unifi-search.ico");
+    let icon = load_icon(IMAGE);
 
     let native_options = eframe::NativeOptions{
         initial_window_size: Some(egui::Vec2{x:700., y:180.}),
-        max_window_size: Some(egui::Vec2{x:1000., y:170.}),
+        max_window_size: Some(egui::Vec2{x:850., y:170.}),
         min_window_size: Some(egui::Vec2{x:265., y:150.}),
         icon_data: Some(icon),
         ..Default::default()
@@ -22,10 +23,10 @@ fn main() {
     );
 }
 
-
-fn load_icon(path: &str) -> eframe::IconData {
+fn load_icon(image_const: &[u8]) -> eframe::IconData {
     let (icon_rgba, icon_width, icon_height) = {
-        let image = image::open(path)
+        //let image = image::open(path)
+        let image = image::load_from_memory(image_const)
             .expect("Failed to open icon path")
             .into_rgba8();
         let (width, height) = image.dimensions();
