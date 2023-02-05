@@ -28,4 +28,4 @@ panic = "abort"
 [package.metadata.winres]
 OriginalFilename = "unifi-search-tool.exe"
 FileDescription = "Tool to search for device by MAC Address across sites within a Unifi controller"
-LegalCopyright = "Copyright © 2022"
+LegalCopyright = "Copyright © 2022-2023"
