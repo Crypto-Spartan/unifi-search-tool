@@ -14,7 +14,8 @@ pub struct UnifiSearchInfo {
     pub username: String,
     pub password: String,
     pub server_url: String,
-    pub mac_address: String
+    pub mac_address: String,
+    pub accept_invalid_certs: bool
 }
 
 impl Default for UnifiSearchInfo {
@@ -23,7 +24,8 @@ impl Default for UnifiSearchInfo {
             username: "".to_owned(),
             password: "".to_owned(),
             server_url: "".to_owned(),
-            mac_address: "".to_owned()
+            mac_address: "".to_owned(),
+            accept_invalid_certs: false
         }
     }
 }
@@ -51,9 +53,9 @@ pub enum DeviceLabel {
 }
 
 pub fn run_unifi_search(search_info: &mut UnifiSearchInfo, channels_for_unifi: &mut ChannelsForUnifiThread) -> UnifiSearchStatus {
-    let UnifiSearchInfo { username, password, server_url, mac_address } = search_info;
+    let UnifiSearchInfo { username, password, server_url, mac_address, accept_invalid_certs } = search_info;
 
-    if let Some(client) = login_with_client(username, password, server_url) {
+    if let Some(client) = login_with_client(username, password, server_url, accept_invalid_certs) {
 
         find_unifi_device(client, server_url, mac_address, channels_for_unifi)
     
@@ -62,14 +64,14 @@ pub fn run_unifi_search(search_info: &mut UnifiSearchInfo, channels_for_unifi: &
     }
 }
 
-fn login_with_client(username: &mut String, password: &mut String, base_url: &String) -> Option<Client> {
+fn login_with_client(username: &mut String, password: &mut String, base_url: &String, accept_invalid_certs: &bool) -> Option<Client> {
     let mut login_data = HashMap::new();
     login_data.insert("username", &username);
     login_data.insert("password", &password);    
 
     let client = Client::builder()
         .timeout(Duration::from_secs(10))
-        .danger_accept_invalid_certs(true)
+        .danger_accept_invalid_certs(*accept_invalid_certs)
         .cookie_store(true)
         .build().expect("failed building http client");
 

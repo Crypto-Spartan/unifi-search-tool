@@ -3,6 +3,13 @@ use crate::unifi::{UnifiSearchInfo, UnifiDevice, UnifiSearchStatus, DeviceLabel,
 use flume::{Sender, Receiver};
 use fancy_regex::Regex;
 
+/*#[derive(Debug, Clone, PartialEq)]
+enum FontSize {
+    Large,
+    Medium,
+    Small
+}*/
+
 #[derive(Debug, Clone, PartialEq)]
 struct GuiErrorInfo {
     title: String,
@@ -74,6 +81,7 @@ pub struct ChannelsForUnifiThread {
 }
 
 pub struct GuiApp {
+    //font_size_enum: FontSize,
     mac_addr_regex: Regex,
     unifi_search_info: UnifiSearchInfo,
     channels_for_gui: ChannelsForGuiThread,
@@ -82,6 +90,8 @@ pub struct GuiApp {
 
 impl Default for GuiApp {
     fn default() -> Self {
+        //let font_size_enum = FontSize::Medium;
+
         // create regex to ensure mac addresses are formatted properly
         let mac_addr_regex = Regex::new(r"^(?:\h{2}([-:]))(?:\h{2}\1){4}\h{2}$").unwrap();
 
@@ -116,6 +126,7 @@ impl Default for GuiApp {
         });
 
         Self {
+            //font_size_enum,
             mac_addr_regex,
             unifi_search_info: UnifiSearchInfo::default(),
             channels_for_gui,
@@ -140,20 +151,56 @@ impl eframe::App for GuiApp {
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let Self {
+            //font_size_enum,
             mac_addr_regex,
             unifi_search_info,
             channels_for_gui,
             popup_window
         }  = self;
-        let UnifiSearchInfo { username, password, server_url, mac_address } = unifi_search_info;
+        let UnifiSearchInfo { username, password, server_url, mac_address, accept_invalid_certs } = unifi_search_info;
 
         egui::CentralPanel::default().show(ctx, |ui| {
+
+            /*let mut style = (*ctx.style()).clone();
+            style.text_styles = [
+                (Heading, FontId::new(30.0, Proportional)),
+                (Body, FontId::new(18.0, Proportional)),
+                (Monospace, FontId::new(14.0, Proportional)),
+                (Button, FontId::new(14.0, Proportional)),
+                (Small, FontId::new(10.0, Proportional)),
+            ]
+            .into();
+            ctx.set_style(style);
+
+            let font_size_num = {
+                match font_size {
+                    FontSize::Large => 20.0,
+                    FontSize::Medium => 15.0,
+                    FontSize::Small => 10.0
+                }
+            };
+            let mut fonts = egui::FontDefinitions::default();
+            fonts.family_and_size.insert(
+                egui::TextStyle::Body,
+                (egui::FontFamily::Proportional, font_size_num)
+            );
+            ctx.set_fonts(fonts);*/
+
+
             let main_window_size = ui.available_size();
 
             // create top menu bar with light/dark buttons & hyperlinks
             egui::menu::bar(ui, |ui| {
                 ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
                     egui::widgets::global_dark_light_mode_buttons(ui);
+                    /*ui.label(" | ");
+                    egui::ComboBox::from_label("Text Size")
+                        .selected_text(format!("{:?}", font_size_enum))
+                        .show_ui(ui, |ui| {
+                            ui.selectable_value(&mut font_size_enum, FontSize::Large, "Large");
+                            ui.selectable_value(&mut font_size_enum, FontSize::Medium, "Medium");
+                            ui.selectable_value(&mut font_size_enum, FontSize::Small, "Small");
+                        });*/
                 });
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::BOTTOM), |ui| {
                     ui.hyperlink_to("Source Code", "https://github.com/Crypto-Spartan/unifi-search-tool");
@@ -185,7 +232,11 @@ impl eframe::App for GuiApp {
                 ui.label("MAC Address");
                 ui.add(egui::TextEdit::singleline(mac_address).desired_width(f32::INFINITY));
                 ui.end_row();
+
+                //ui.label("Accept Invalid HTTPS Certificate");
+                //ui.add();
             });
+            ui.checkbox(accept_invalid_certs, "Accept Invalid HTTPS Certificate");
 
             // add "Search Unifi" button
             ui.horizontal(|ui| {
@@ -210,7 +261,8 @@ impl eframe::App for GuiApp {
                                     username: username.to_string(),
                                     password: password.to_string(),
                                     server_url: server_url.to_string(),
-                                    mac_address: mac_address.replace("-", ":").to_lowercase()
+                                    mac_address: mac_address.replace("-", ":").to_lowercase(),
+                                    accept_invalid_certs: *accept_invalid_certs
                                 }
                             ).unwrap();
                         }
