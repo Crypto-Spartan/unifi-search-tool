@@ -10,17 +10,19 @@ fn main() {
     let icon = load_icon(IMAGE);
 
     let native_options = eframe::NativeOptions{
-        initial_window_size: Some(egui::Vec2{x:700., y:180.}),
-        max_window_size: Some(egui::Vec2{x:850., y:170.}),
-        min_window_size: Some(egui::Vec2{x:265., y:150.}),
+        initial_window_size: Some(egui::Vec2{x:750., y:260.}),
+        min_window_size: Some(egui::Vec2{x:500., y:170.}),
         icon_data: Some(icon),
         ..Default::default()
     };
-    eframe::run_native(
+    let error = eframe::run_native(
         "Unifi Search Tool",
         native_options,
         Box::new(|cc| Box::new(GuiApp::new(cc))),
     );
+    if error.is_err() {
+        eprintln!("{}", error.unwrap_err());
+    }
 }
 
 fn load_icon(image_const: &[u8]) -> eframe::IconData {
