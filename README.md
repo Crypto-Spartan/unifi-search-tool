@@ -4,7 +4,7 @@ Does your unifi controller have lots of sites? Do you frequently have equipment 
 
 ### How to Use
 
-![examplev2](https://raw.githubusercontent.com/Crypto-Spartan/unifi-search-tool/master/screenshots/examplev2.png "examplev2")
+![examplev2](https://raw.githubusercontent.com/Crypto-Spartan/unifi-search-tool/main/screenshots/examplev2.png "examplev2")
 
 1. Enter your username & password for your Unifi Controller
 
