@@ -19,7 +19,7 @@ struct GuiErrorInfo {
 
 #[derive(Debug, Clone, PartialEq)]
 enum GuiErrorType {
-    Critical(String),
+    //Critical(String),
     Standard,
     Info
 }
@@ -403,20 +403,20 @@ impl eframe::App for GuiApp {
                         let default_x_pos = (main_window_size.x/2.) - (width/2.);
                         let default_y_pos = main_window_size.y*0.25;
 
-                        let mut include_error_code = false;
-                        let mut include_github_link = false;
-                        let mut error_code = "".to_string();
+                        let /*mut*/ include_error_code = false;
+                        let /*mut*/ include_github_link = false;
+                        let /*mut*/ error_code = "".to_string();
                         let full_error_title;
                         let error_message;
 
                         match &error_info.err_type {
-                            GuiErrorType::Critical(err_code) => {
+                            /*GuiErrorType::Critical(err_code) => {
                                 full_error_title = format!("Critical Error: {}", &error_info.title);
                                 include_error_code = true;
                                 error_code = err_code.to_string();
                                 error_message = error_info.desc.to_string();
                                 include_github_link = true;
-                            },
+                            },*/
                             GuiErrorType::Standard => {
                                 full_error_title = format!("Error: {}", error_info.title);
                                 error_message = error_info.desc.to_string();

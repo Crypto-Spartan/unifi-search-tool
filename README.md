@@ -1,4 +1,5 @@
-# Unifi Search Tool v2.0.3 - Download [Here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/latest)
+# Unifi Search Tool v2.1.1 - Download [Here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/latest)
+
 Does your unifi controller have lots of sites? Do you frequently have equipment returned from those sites and you can't remember where it's adopted in the controller? Enter Unifi Search Tool.
 
 ### How to Use
@@ -45,7 +46,7 @@ Next time Unifi Search Tool is launched, it will have new pre-populated fields.
 
 3. Run `cargo build --release` in the terminal
 
-5. Go to the `target/release` directory to find the unifi-search-tool.exe file
+4. Go to the `target/release` directory to find the unifi-search-tool.exe file
 
 ### If you would like to optimize the binary for size
 
@@ -68,4 +69,4 @@ host: x86_64-unknown-linux-gnu
 $ cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort --target x86_64-unknown-linux-gnu --release
 ```
 
-- see https://github.com/johnthagen/min-sized-rust for more details
+- see <https://github.com/johnthagen/min-sized-rust> for more details
