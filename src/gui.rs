@@ -25,13 +25,13 @@ enum GuiErrorType {
 }
 
 impl GuiErrorInfo {
-    fn new_critical<A: AsRef<str>, S: AsRef<str>, T: AsRef<str>>(err_code: A, title: S, desc: T) -> Self {
+    /*fn new_critical<A: AsRef<str>, S: AsRef<str>, T: AsRef<str>>(err_code: A, title: S, desc: T) -> Self {
         Self {
             title: title.as_ref().to_string(),
             desc: desc.as_ref().to_string(),
             err_type: GuiErrorType::Critical(err_code.as_ref().to_string())
         }
-    }
+    }*/
 
     fn new_standard<S: AsRef<str>, T: AsRef<str>>(title: S, desc: T) -> Self {
         Self {
