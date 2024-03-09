@@ -121,7 +121,7 @@ fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str, channe
     };
     let unifi_sites_len = unifi_sites.len() as f32;
     
-    for (iter_num, site) in unifi_sites.into_iter().enumerate() {
+    for (iter_num, site) in unifi_sites.iter().enumerate() {
         // check for cancel signal
         if let Ok(v) = channels_for_unifi.signal_rx.try_recv() {
             if v == ThreadSignal::Stop {
@@ -146,7 +146,7 @@ fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str, channe
         let mut state: String;
         
         // loop through the devices found in the site to see if the MAC address matches what we're searching for
-        for device in site_devices.into_iter() {
+        for device in site_devices.iter() {
             if let Value::String(mac_found) = &device["mac"] {
                 if mac_to_search == mac_found.to_lowercase() {
                     // set percentage to 100%
@@ -167,10 +167,8 @@ fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str, channe
                     let mut device_label_option = None;
                     if let Value::String(name) = &device["name"] {
                         device_label_option = Some(DeviceLabel::Name(name.to_string()));
-                    } else {
-                        if let (Value::String(device_type), Value::String(model)) = (&device["type"], &device["model"]) {
-                            device_label_option = Some(DeviceLabel::Model(format!("{} / {}", device_type.to_uppercase(), model.to_uppercase())));
-                        }
+                    } else if let (Value::String(device_type), Value::String(model)) = (&device["type"], &device["model"]) {
+                        device_label_option = Some(DeviceLabel::Model(format!("{} / {}", device_type.to_uppercase(), model.to_uppercase())));
                     }
 
                     if let Some(device_label) = device_label_option {
