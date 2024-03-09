@@ -11,7 +11,7 @@ enum FontSize {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-struct GuiErrorInfo {
+struct GuiErrorData {
     title: String,
     desc: String,
     err_type: GuiErrorType
@@ -19,19 +19,20 @@ struct GuiErrorInfo {
 
 #[derive(Debug, Clone, PartialEq)]
 enum GuiErrorType {
-    //Critical(String),
+    Critical,
     Standard,
     Info
 }
 
-impl GuiErrorInfo {
-    /*fn new_critical<A: AsRef<str>, S: AsRef<str>, T: AsRef<str>>(err_code: A, title: S, desc: T) -> Self {
+
+impl GuiErrorData {
+    fn new_critical<S: AsRef<str>, T: AsRef<str>>(title: S, desc: T) -> Self {
         Self {
             title: title.as_ref().to_string(),
             desc: desc.as_ref().to_string(),
-            err_type: GuiErrorType::Critical(err_code.as_ref().to_string())
+            err_type: GuiErrorType::Critical
         }
-    }*/
+    }
 
     fn new_standard<S: AsRef<str>, T: AsRef<str>>(title: S, desc: T) -> Self {
         Self {
@@ -61,7 +62,7 @@ pub enum ThreadSignal {
 enum PopupWindow {
     DisplaySearch(f32),
     DisplayResult(UnifiDevice),
-    DisplayError(GuiErrorInfo),
+    DisplayError(GuiErrorData),
     DisplayCancel,
     None
 }
@@ -236,11 +237,11 @@ impl eframe::App for GuiApp {
                         || server_url.len() == 0
                         || mac_address.len() == 0 {
                             *popup_window = PopupWindow::DisplayError(
-                                GuiErrorInfo::new_standard("Required Fields", "Username, Password, Server URL, & MAC Address are all required fields.")
+                                GuiErrorData::new_standard("Required Fields", "Username, Password, Server URL, & MAC Address are all required fields.")
                             );
                         } else if !mac_addr_regex.is_match(&mac_address).unwrap_or(false) {
                             *popup_window = PopupWindow::DisplayError(
-                                GuiErrorInfo::new_standard("Invalid MAC Address", "MAC Address must be formatted like XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX with hexadecimal characters only.")
+                                GuiErrorData::new_standard("Invalid MAC Address", "MAC Address must be formatted like XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX with hexadecimal characters only.")
                             );
                         } else {
                             *popup_window = PopupWindow::DisplaySearch(0.);
@@ -293,7 +294,7 @@ impl eframe::App for GuiApp {
                                         },
                                         UnifiSearchStatus::DeviceNotFound => {
                                             *popup_window = PopupWindow::DisplayError(
-                                                GuiErrorInfo::new_info("Device Not Found", format!("Unable to find device with MAC Address {}", mac_address))
+                                                GuiErrorData::new_info("Device Not Found", format!("Unable to find device with MAC Address {}", mac_address))
                                             );
                                         },
                                         UnifiSearchStatus::Cancelled => {
@@ -301,7 +302,17 @@ impl eframe::App for GuiApp {
                                         },
                                         UnifiSearchStatus::LoginError => {
                                             *popup_window = PopupWindow::DisplayError(
-                                                GuiErrorInfo::new_standard("Login Failed", format!("Unable to login to {}", server_url))
+                                                GuiErrorData::new_standard("Login Failed", format!("Unable to login to {}", server_url))
+                                            );
+                                        },
+                                        UnifiSearchStatus::APINetworkError => {
+                                            *popup_window = PopupWindow::DisplayError(
+                                                GuiErrorData::new_standard("Network Error", format!("Unable to reach {}", server_url))
+                                            );
+                                        },
+                                        UnifiSearchStatus::APIParsingError => {
+                                            *popup_window = PopupWindow::DisplayError(
+                                                GuiErrorData::new_critical("API Parsing Error", "Error parsing API data")
                                             );
                                         }
                                     }
@@ -403,20 +414,21 @@ impl eframe::App for GuiApp {
                         let default_x_pos = (main_window_size.x/2.) - (width/2.);
                         let default_y_pos = main_window_size.y*0.25;
 
-                        let /*mut*/ include_error_code = false;
-                        let /*mut*/ include_github_link = false;
-                        let /*mut*/ error_code = "".to_string();
+                        //let /*mut*/ include_error_code = false;
+                        let mut include_github_link = false;
+                        //let /*mut*/ error_code = "".to_string();
                         let full_error_title;
                         let error_message;
 
                         match &error_info.err_type {
-                            /*GuiErrorType::Critical(err_code) => {
+                            //GuiErrorType::Critical(err_code) => {
+                            GuiErrorType::Critical => {
                                 full_error_title = format!("Critical Error: {}", &error_info.title);
-                                include_error_code = true;
-                                error_code = err_code.to_string();
+                                //include_error_code = true;
+                                //error_code = err_code.to_string();
                                 error_message = error_info.desc.to_string();
                                 include_github_link = true;
-                            },*/
+                            },
                             GuiErrorType::Standard => {
                                 full_error_title = format!("Error: {}", error_info.title);
                                 error_message = error_info.desc.to_string();
@@ -435,16 +447,23 @@ impl eframe::App for GuiApp {
                             .show(ctx, |ui| {
                                 ui.vertical(|ui| {
 
-                                    if include_error_code {
-                                        // display error code
-                                        ui.label(format!("Error Code: {}", error_code));
-                                    }
+                                    // if include_error_code {
+                                    //     // display error code
+                                    //     ui.label(format!("Error Code: {}", error_code));
+                                    // }
 
                                     // error message
                                     ui.horizontal(|ui| {
                                         if include_github_link {
-                                            ui.label(format!("{}, please report this bug to the", error_message));
-                                            ui.hyperlink_to("Github Issues Page", "https://github.com/Crypto-Spartan/unifi-search-tool/issues");
+                                            ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::TopDown), |ui| {
+                                                ui.label(error_message);
+                                                ui.horizontal(|ui| {
+                                                    ui.spacing_mut().item_spacing.x = 0.0;
+                                                    ui.label("Please report this bug to the ");
+                                                    ui.hyperlink_to("Github Issues Page", "https://github.com/Crypto-Spartan/unifi-search-tool/issues");
+                                                    ui.label(" and include as much information as possible.")
+                                                });
+                                            });
                                         } else {
                                             ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::TopDown), |ui| {
                                                 ui.label(error_message);

@@ -35,7 +35,9 @@ pub enum UnifiSearchStatus {
     DeviceFound(UnifiDevice),
     DeviceNotFound,
     Cancelled,
-    LoginError
+    LoginError,
+    APINetworkError,
+    APIParsingError
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -104,14 +106,22 @@ fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str, channe
         }
     }
 
-    let sites_get = client.get(format!("{}/api/self/sites", base_url))
-        .send().expect("failed sites get request");
-    let sites_raw = sites_get.text().expect("failed to read result of sites get request");
-    let sites_serde: Value = serde_json::from_str(&sites_raw).unwrap();
-    let unifi_sites = sites_serde["data"].as_array().unwrap();
+    let Ok(sites_get) = client.get(format!("{}/api/self/sites", base_url)).send() else {
+        return UnifiSearchStatus::APINetworkError
+    };
+    let Ok(sites_raw) = sites_get.text() else {
+        return UnifiSearchStatus::APIParsingError
+    };
+    let serde_json_result: Result<Value, serde_json::Error> = serde_json::from_str(&sites_raw);
+    let Ok(sites_serde) = serde_json_result else {
+        return UnifiSearchStatus::APIParsingError
+    };
+    let Some(unifi_sites) = sites_serde["data"].as_array() else {
+        return UnifiSearchStatus::APIParsingError
+    };
     let unifi_sites_len = unifi_sites.len() as f32;
-
-    for (iter_num, site) in unifi_sites.iter().enumerate() {
+    
+    for (iter_num, site) in unifi_sites.into_iter().enumerate() {
         // check for cancel signal
         if let Ok(v) = channels_for_unifi.signal_rx.try_recv() {
             if v == ThreadSignal::Stop {
@@ -131,15 +141,16 @@ fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str, channe
             .send().expect("failed devices get request");
         let devices_raw = devices_get.text().expect("failed to read result of devices get request");
         let devices_serde: Value = serde_json::from_str(&devices_raw).unwrap();
-        let site_devices = &devices_serde["data"].as_array().unwrap();
+        let site_devices = devices_serde["data"].as_array().unwrap();
         
         let mut state: String;
         
         // loop through the devices found in the site to see if the MAC address matches what we're searching for
         for device in site_devices.into_iter() {
             if let Value::String(mac_found) = &device["mac"] {
-                if mac_to_search == mac_found.to_lowercase() {          
-                    let _ = channels_for_unifi.percentage_tx.try_send(1f32);          
+                if mac_to_search == mac_found.to_lowercase() {
+                    // set percentage to 100%
+                    let _ = channels_for_unifi.percentage_tx.try_send(1f32);
                     
                     if let Some(i) = device["state"].as_i64() {
                         if i == 1 {

@@ -1,8 +1,8 @@
-# Unifi Search Tool v2.1.1 - Download [Here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/latest)
+# Unifi Search Tool - Download [Here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/latest)
 
 Does your unifi controller have lots of sites? Do you frequently have equipment returned from those sites and you can't remember where it's adopted in the controller? Enter Unifi Search Tool.
 
-### How to Use
+## How to Use
 
 ![examplev2](https://raw.githubusercontent.com/Crypto-Spartan/unifi-search-tool/main/screenshots/examplev2.png "examplev2")
 
@@ -17,24 +17,6 @@ Does your unifi controller have lots of sites? Do you frequently have equipment 
 5. Profit
 
 The tool will tell you which site in the controller that the device was adopted to. If it hasn't been adopted, the tool will tell you that the device could not be found.
-
-## **Advanced**
-
-### Pre-populate username, password, & URL fields
-
-**\*\*\* This feature is not functional in the 2.0.0 release. It is planned to be added in the 2.1.0 release. If you require the pre-populated fields, you can download v1.4.1 [here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/tag/1.4.1) \*\*\***
-
-These instructions are for those that would like to add in their own defaults so that they don't need to re-enter their credentials or controller URL each time the program is opened. (This will only work for the installed version unless you decide to build the portable version from source.)
-
-#### NOTE: If you choose to do this and credentials are stolen, I am not responsible. This is at your own risk.
-
-1. Find `config.txt` within the install folder. (Default is C:\Program Files (x86)\Unifi Search Tool)
-
-2. Add in your own values to the right of the `=` symbol
-
-3. Save config.txt
-
-Next time Unifi Search Tool is launched, it will have new pre-populated fields.
 
 ## Build From Source
 
@@ -70,3 +52,21 @@ $ cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_
 ```
 
 - see <https://github.com/johnthagen/min-sized-rust> for more details
+
+## **Advanced**
+
+### Pre-populate username, password, & URL fields
+
+**\*\*\* This feature is not functional in the 2.X.X release. If you require the pre-populated fields, you can download v1.4.1 [here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/tag/1.4.1) \*\*\***
+
+These instructions are for those that would like to add in their own defaults so that they don't need to re-enter their credentials or controller URL each time the program is opened. (This will only work for the installed version unless you decide to build the portable version from source.)
+
+#### NOTE: If you choose to do this and credentials are stolen, I am not responsible. This is at your own risk.
+
+1. Find `config.txt` within the install folder. (Default is C:\Program Files (x86)\Unifi Search Tool)
+
+2. Add in your own values to the right of the `=` symbol
+
+3. Save config.txt
+
+Next time Unifi Search Tool is launched, it will have new pre-populated fields.

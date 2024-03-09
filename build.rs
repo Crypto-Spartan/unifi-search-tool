@@ -1,5 +1,4 @@
 use std::io;
-use embed_resource;
 
 fn main() -> io::Result<()> {
     #[cfg(windows)] {
