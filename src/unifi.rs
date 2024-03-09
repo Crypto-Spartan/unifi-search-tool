@@ -83,6 +83,7 @@ fn login_with_client(username: &mut String, password: &mut String, base_url: &St
         .send()
         .ok();
 
+    // zeroize the user entered data for security
     password.zeroize();
     username.zeroize();
 
@@ -100,8 +101,8 @@ fn login_with_client(username: &mut String, password: &mut String, base_url: &St
 fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str, channels_for_unifi: &mut ChannelsForUnifiThread) -> UnifiSearchStatus /*Option<UnifiDevice>*/ {
     
     // check for cancel signal
-    if let Ok(v) = channels_for_unifi.signal_rx.try_recv() {
-        if v == ThreadSignal::Stop {
+    if let Ok(s) = channels_for_unifi.signal_rx.try_recv() {
+        if s == ThreadSignal::CancelSearch {
             return UnifiSearchStatus::Cancelled
         }
     }
@@ -124,7 +125,7 @@ fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str, channe
     for (iter_num, site) in unifi_sites.iter().enumerate() {
         // check for cancel signal
         if let Ok(v) = channels_for_unifi.signal_rx.try_recv() {
-            if v == ThreadSignal::Stop {
+            if v == ThreadSignal::CancelSearch {
                 return UnifiSearchStatus::Cancelled
             }
         }

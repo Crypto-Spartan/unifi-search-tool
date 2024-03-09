@@ -44,8 +44,7 @@ impl GuiError {
 
 #[derive(Debug, PartialEq)]
 pub enum ThreadSignal {
-    Proceed,
-    Stop
+    CancelSearch
 }
 
 #[derive(Debug, PartialEq)]
@@ -332,7 +331,7 @@ impl eframe::App for GuiApp {
                                 ui.horizontal(|ui| {
                                     ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::TopDown), |ui| {
                                         if ui.button("Cancel").clicked() {
-                                            channels_for_gui.signal_tx.send(ThreadSignal::Stop).unwrap();
+                                            channels_for_gui.signal_tx.send(ThreadSignal::CancelSearch).unwrap();
                                             *popup_window = PopupWindow::DisplayCancel;
                                         }
                                     });
