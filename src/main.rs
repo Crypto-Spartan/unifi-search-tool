@@ -9,14 +9,11 @@ fn main() {
     const IMAGE: &[u8] = include_bytes!("unifi-search.ico");
     let icon = load_icon(IMAGE);
 
-    let native_options = eframe::NativeOptions{
+    let native_options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([750., 260.])
+            .with_inner_size([800., 280.])
             .with_min_inner_size([500., 170.])
             .with_icon(icon),
-        // initial_window_size: Some(egui::Vec2{x:750., y:260.}),
-        // min_window_size: Some(egui::Vec2{x:500., y:170.}),
-        // icon_data: Some(icon),
         ..Default::default()
     };
     let error = eframe::run_native(
@@ -33,7 +30,7 @@ fn load_icon(image_const: &[u8]) -> egui::viewport::IconData {
     let (icon_rgba, icon_width, icon_height) = {
         //let image = image::open(path)
         let image = image::load_from_memory(image_const)
-            .expect("Failed to open icon path")
+            .expect("Failed to load icon from binary")
             .into_rgba8();
         let (width, height) = image.dimensions();
         let rgba = image.into_raw();
