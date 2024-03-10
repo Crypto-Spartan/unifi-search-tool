@@ -1,5 +1,5 @@
 use std::thread;
-use crate::unifi::{UnifiSearchInfo, UnifiDeviceFound, UnifiSearchStatus, UnifiSearchError, ErrorCode, DeviceLabel, run_unifi_search};
+use crate::unifi::{UnifiSearchInfo, UnifiDeviceFound, UnifiSearchStatus, UnifiSearchError, DeviceLabel, run_unifi_search};
 use flume::{Sender, Receiver};
 use fancy_regex::Regex;
 
@@ -303,7 +303,7 @@ impl eframe::App for GuiApp {
                                     },
                                     UnifiSearchStatus::Error(search_error) => {
                                         match search_error {
-                                            UnifiSearchError::LoginError(error_code) => {
+                                            UnifiSearchError::Login(error_code) => {
                                                 *popup_window = PopupWindow::DisplayError(
                                                     GuiError::new_standard(
                                                         format!("Error {}: Login Failed", error_code),
@@ -311,7 +311,7 @@ impl eframe::App for GuiApp {
                                                     )
                                                 );
                                             },
-                                            UnifiSearchError::APINetworkError(error_code) => {
+                                            UnifiSearchError::APINetwork(error_code) => {
                                                 *popup_window = PopupWindow::DisplayError(
                                                     GuiError::new_standard(
                                                         format!("Error {}: Network Error", error_code),
@@ -319,7 +319,7 @@ impl eframe::App for GuiApp {
                                                     )
                                                 );
                                             },
-                                            UnifiSearchError::APIParsingError(error_code) => {
+                                            UnifiSearchError::APIParsing(error_code) => {
                                                 *popup_window = PopupWindow::DisplayError(
                                                     GuiError::new_critical(
                                                         format!("Error {}: API Parsing Error", error_code),

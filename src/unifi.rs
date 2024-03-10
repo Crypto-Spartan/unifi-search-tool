@@ -4,11 +4,10 @@ use std::time::Duration;
 use std::collections::HashMap;
 use reqwest::blocking::Client;
 use reqwest::header::REFERER;
-use serde::{Deserialize};
+use serde::Deserialize;
 use serde_json::{Value, Result};
 use zeroize::Zeroize;
-use crate::{gui::{ChannelsForUnifiThread, ThreadSignal}, unifi};
-
+use crate::gui::{ChannelsForUnifiThread, ThreadSignal};
 use std::fs;
 
 
@@ -45,9 +44,9 @@ pub enum UnifiSearchStatus {
 pub type ErrorCode = usize;
 #[derive(Debug, Clone)]
 pub enum UnifiSearchError {
-    LoginError(ErrorCode),
-    APINetworkError(ErrorCode),
-    APIParsingError(ErrorCode)
+    Login(ErrorCode),
+    APINetwork(ErrorCode),
+    APIParsing(ErrorCode)
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -65,6 +64,35 @@ pub enum DeviceLabel {
     Model(String)
 }
 
+#[derive(Debug, Clone, Deserialize)]
+struct UnifiAllSitesJson {
+    data: Vec<UnifiSiteJson>
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct UnifiSiteJson {
+    #[serde(rename = "name")]
+    code: String,
+    desc: String
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct UnifiAllSiteDevicesJson {
+    data: Vec<UnifiSiteDeviceJson>
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct UnifiSiteDeviceJson {
+    mac: String,
+    state: usize,
+    adopted: bool,
+    //disabled: bool,
+    #[serde(rename = "type")]
+    device_type: String,
+    model: String,
+    name: Option<String>
+}
+
 pub fn run_unifi_search(search_info: &mut UnifiSearchInfo, channels_for_unifi: &mut ChannelsForUnifiThread) -> UnifiSearchStatus {
     let UnifiSearchInfo { username, password, server_url, mac_address, accept_invalid_certs } = search_info;
 
@@ -73,7 +101,7 @@ pub fn run_unifi_search(search_info: &mut UnifiSearchInfo, channels_for_unifi: &
         find_unifi_device(client, server_url, mac_address, channels_for_unifi)
     
     } else {
-        UnifiSearchStatus::Error(UnifiSearchError::LoginError(101))
+        UnifiSearchStatus::Error(UnifiSearchError::Login(101))
     }
 }
 
@@ -109,36 +137,6 @@ fn login_with_client(username: &mut String, password: &mut String, base_url: &St
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
-struct UnifiAllSitesJson {
-    data: Vec<UnifiSiteJson>
-}
-
-#[derive(Debug, Clone, Deserialize)]
-struct UnifiSiteJson {
-    #[serde(rename = "name")]
-    code: String,
-    desc: String
-}
-
-#[derive(Debug, Clone, Deserialize)]
-struct UnifiAllSiteDevicesJson {
-    data: Vec<UnifiSiteDeviceJson>
-}
-
-
-#[derive(Debug, Clone, Deserialize)]
-struct UnifiSiteDeviceJson {
-    mac: String,
-    state: usize,
-    adopted: bool,
-    //disabled: bool,
-    #[serde(rename = "type")]
-    device_type: String,
-    model: String,
-    name: Option<String>
-}
-
 fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str, channels_for_unifi: &mut ChannelsForUnifiThread) -> UnifiSearchStatus /*Option<UnifiDevice>*/ {
     
     // check for cancel signal
@@ -149,13 +147,13 @@ fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str, channe
     }
 
     let Ok(sites_get) = client.get(format!("{}/api/self/sites", base_url)).send() else {
-        return UnifiSearchStatus::Error(UnifiSearchError::APINetworkError(201))
+        return UnifiSearchStatus::Error(UnifiSearchError::APINetwork(201))
     };
     let Ok(sites_raw) = sites_get.text() else {
-        return UnifiSearchStatus::Error(UnifiSearchError::APIParsingError(301))
+        return UnifiSearchStatus::Error(UnifiSearchError::APIParsing(301))
     };
     let Ok::<UnifiAllSitesJson, _>(sites_parsed) = serde_json::from_str(&sites_raw) else {
-        return UnifiSearchStatus::Error(UnifiSearchError::APIParsingError(302))
+        return UnifiSearchStatus::Error(UnifiSearchError::APIParsing(302))
     };
     let unifi_sites = sites_parsed.data;
     let unifi_sites_len = unifi_sites.len() as f32;
@@ -173,16 +171,16 @@ fn find_unifi_device(client: Client, base_url: &str, mac_to_search: &str, channe
 
         // hit the controller's API to get device info for a specific site
         let Ok(devices_get) = client.get(format!("{}/api/s/{}/stat/device-basic", base_url, site.code)).send() else {
-            return UnifiSearchStatus::Error(UnifiSearchError::APINetworkError(202))
+            return UnifiSearchStatus::Error(UnifiSearchError::APINetwork(202))
         };
         let Ok(devices_raw) = devices_get.text() else {
-            return UnifiSearchStatus::Error(UnifiSearchError::APIParsingError(303))
+            return UnifiSearchStatus::Error(UnifiSearchError::APIParsing(303))
         };
         // let s: Result<UnifiAllSiteDevicesJson> = serde_json::from_str(&devices_raw);
         // dbg!(s);
         //dbg!(serde_json::from_str(&devices_raw));
         let Ok::<UnifiAllSiteDevicesJson, _>(devices_parsed) = serde_json::from_str(&devices_raw) else {
-            return UnifiSearchStatus::Error(UnifiSearchError::APIParsingError(304))
+            return UnifiSearchStatus::Error(UnifiSearchError::APIParsing(304))
         };
 
         //let devices_serde: Value = serde_json::from_str(&devices_raw).unwrap();
