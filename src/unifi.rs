@@ -35,7 +35,6 @@ pub type UnifiSearchResult = Result<UnifiSearchStatus, UnifiSearchError>;
 type UnifiLoginResult = Result<Client, ErrorCode>;
 type ErrorCode = usize;
 
-
 #[derive(Debug, Clone)]
 pub enum UnifiSearchStatus {
     DeviceFound(UnifiDevice),
@@ -263,7 +262,8 @@ fn find_unifi_device(
                                 "{} / {}",
                                 device.device_type.to_uppercase(),
                                 device.model.to_uppercase()
-                            ).into_boxed_str()
+                            )
+                            .into_boxed_str(),
                         ),
                     }
                 };
