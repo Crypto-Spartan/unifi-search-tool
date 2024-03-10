@@ -9,7 +9,7 @@ fn main() {
     const IMAGE: &[u8] = include_bytes!("unifi-search.ico");
     let icon = load_icon(IMAGE);
 
-    let native_options = eframe::NativeOptions{
+    let native_options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([800., 280.])
             .with_min_inner_size([500., 170.])
