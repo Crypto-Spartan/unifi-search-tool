@@ -22,10 +22,10 @@ pub struct UnifiSearchInfo {
 impl Default for UnifiSearchInfo {
     fn default() -> Self {
         Self {
-            username: "".to_owned(),
-            password: "".to_owned(),
-            server_url: "".to_owned(),
-            mac_address: "".to_owned(),
+            username: "".into(),
+            password: "".into(),
+            server_url: "".into(),
+            mac_address: "".into(),
             accept_invalid_certs: false,
         }
     }
@@ -45,17 +45,17 @@ pub enum UnifiSearchStatus {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnifiDevice {
-    pub mac_found: String,
+    pub mac_found: Box<str>,
     pub device_label: DeviceLabel,
-    pub site: String,
-    pub state: String,
+    pub site: Box<str>,
+    pub state: &'static str,
     pub adopted: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DeviceLabel {
-    Name(String),
-    Model(String),
+    Name(Box<str>),
+    Model(Box<str>),
 }
 
 #[derive(Debug, Clone)]
@@ -144,7 +144,7 @@ pub fn run_unifi_search(
 fn login_with_client(
     username: &mut String,
     password: &mut String,
-    base_url: &String,
+    base_url: &str,
     accept_invalid_certs: bool,
 ) -> UnifiLoginResult {
     let mut login_data: HashMap<&str, &str> = HashMap::new();
@@ -251,25 +251,27 @@ fn find_unifi_device(
                 }
 
                 let state = match device.state {
-                    0 => String::from("Offline"),
-                    1 => String::from("Connected"),
-                    _ => String::from("Unknown"),
+                    0 => "Offline",
+                    1 => "Connected",
+                    _ => "Unknown",
                 };
                 let device_label = {
                     match device.name {
-                        Some(device_name) => DeviceLabel::Name(device_name.to_string()),
-                        None => DeviceLabel::Model(format!(
-                            "{} / {}",
-                            device.device_type.to_uppercase(),
-                            device.model.to_uppercase()
-                        )),
+                        Some(device_name) => DeviceLabel::Name(device_name),
+                        None => DeviceLabel::Model(
+                            format!(
+                                "{} / {}",
+                                device.device_type.to_uppercase(),
+                                device.model.to_uppercase()
+                            ).into_boxed_str()
+                        ),
                     }
                 };
 
                 return Ok(UnifiSearchStatus::DeviceFound(UnifiDevice {
-                    mac_found: device.mac.to_lowercase(),
+                    mac_found: device.mac.to_lowercase().into_boxed_str(),
                     device_label,
-                    site: site.desc.to_string(),
+                    site: site.desc.clone(),
                     state,
                     adopted: device.adopted,
                 }));

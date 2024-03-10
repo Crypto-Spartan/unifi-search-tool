@@ -23,36 +23,36 @@ enum GuiErrorLevel {
 
 #[derive(Debug, Clone, PartialEq)]
 struct GuiError {
-    title: String,
-    desc: String,
+    title: Box<str>,
+    desc: Box<str>,
     err_lvl: GuiErrorLevel,
 }
 
 impl GuiError {
-    fn new_info(title: String, desc: String) -> Self {
+    fn new_info(title: Box<str>, desc: Box<str>) -> Self {
         Self {
             title,
             desc,
             err_lvl: GuiErrorLevel::Info,
         }
     }
-    fn new_standard(title: String, desc: String) -> Self {
+    fn new_standard(title: Box<str>, desc: Box<str>) -> Self {
         Self {
             title,
             desc,
             err_lvl: GuiErrorLevel::Standard,
         }
     }
-    fn new_standard_with_code(title: String, desc: String, code: usize) -> Self {
+    fn new_standard_with_code(title: &str, desc: Box<str>, code: usize) -> Self {
         Self {
-            title: format!("Error {}: {}", code, title),
+            title: format!("Error {}: {}", code, title).into_boxed_str(),
             desc,
             err_lvl: GuiErrorLevel::Standard,
         }
     }
-    fn new_critical_with_code(title: String, desc: String, code: usize) -> Self {
+    fn new_critical_with_code(title: &str, desc: Box<str>, code: usize) -> Self {
         Self {
-            title: format!("Critical Error {}: {}", code, title),
+            title: format!("Critical Error {}: {}", code, title).into_boxed_str(),
             desc,
             err_lvl: GuiErrorLevel::Critical,
         }
@@ -252,15 +252,15 @@ impl eframe::App for GuiApp {
                         || mac_address.is_empty() {
                             *popup_window_option = Some(PopupWindow::Error(
                                 GuiError::new_standard(
-                                    "Required Fields".to_string(),
-                                    "Username, Password, Server URL, & MAC Address are all required fields.".to_string()
+                                    "Required Fields".into(),
+                                    "Username, Password, Server URL, & MAC Address are all required fields.".into()
                                 )
                             ));
                         } else if !mac_addr_regex.is_match(mac_address).unwrap_or(false) {
                             *popup_window_option = Some(PopupWindow::Error(
                                 GuiError::new_standard(
-                                    "Invalid MAC Address".to_string(),
-                                    "MAC Address must be formatted like XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX with hexadecimal characters only.".to_string()
+                                    "Invalid MAC Address".into(),
+                                    "MAC Address must be formatted like XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX with hexadecimal characters only.".into()
                                 )
                             ));
                         } else {
@@ -319,8 +319,8 @@ impl eframe::App for GuiApp {
                                                 UnifiSearchStatus::DeviceNotFound => {
                                                     *popup_window_option = Some(PopupWindow::Error(
                                                         GuiError::new_info(
-                                                            "Device Not Found".to_string(),
-                                                            format!("Unable to find device with MAC Address {}", mac_address)
+                                                            "Device Not Found".into(),
+                                                            format!("Unable to find device with MAC Address {}", mac_address).into_boxed_str()
                                                         )
                                                     ));
                                                 },
@@ -334,8 +334,8 @@ impl eframe::App for GuiApp {
                                                 UnifiErrorKind::Login => {
                                                     Some(PopupWindow::Error(
                                                         GuiError::new_standard_with_code(
-                                                            "Login Failed".to_string(),
-                                                            format!("Unable to login to {}", server_url),
+                                                            "Login Failed",
+                                                            format!("Unable to login to {}", server_url).into_boxed_str(),
                                                             unifi_search_error.code
                                                         )
                                                     ))
@@ -343,8 +343,8 @@ impl eframe::App for GuiApp {
                                                 UnifiErrorKind::Network => {
                                                     Some(PopupWindow::Error(
                                                         GuiError::new_standard_with_code(
-                                                            "Network Error".to_string(),
-                                                            format!("Unable to reach {}", server_url),
+                                                            "Network Error",
+                                                            format!("Unable to reach {}", server_url).into_boxed_str(),
                                                             unifi_search_error.code
                                                         )
                                                     ))
@@ -352,8 +352,8 @@ impl eframe::App for GuiApp {
                                                 UnifiErrorKind::APIParsing => {
                                                     Some(PopupWindow::Error(
                                                         GuiError::new_critical_with_code(
-                                                            "API Parsing Error".to_string(),
-                                                            "Error parsing API data".to_string(),
+                                                            "API Parsing Error",
+                                                            Box::from("Error parsing API data"),
                                                             unifi_search_error.code
                                                         )
                                                     ))
@@ -411,21 +411,21 @@ impl eframe::App for GuiApp {
                                     // apply device name/label to the GUI
                                     ui.label(gui_label);
                                     ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
-                                        ui.label(device_name);
+                                        ui.label(&*device_name);
                                     });
                                     ui.end_row();
 
                                     // display the name of the Unifi site
                                     ui.label("Unifi Site:");
                                     ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
-                                        ui.label(site);
+                                        ui.label(&*site);
                                     });
                                     ui.end_row();
 
                                     // display the MAC address of the device found
                                     ui.label("MAC Address:");
                                     ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
-                                        ui.label(mac_found);
+                                        ui.label(&*mac_found);
                                     });
                                     ui.end_row();
 
@@ -459,7 +459,7 @@ impl eframe::App for GuiApp {
                             });
                     },
                     PopupWindow::Error(error) => {
-                        egui::Window::new(error.title)
+                        egui::Window::new(&*error.title)
                             .resizable(false)
                             .collapsible(false)
                             .default_width(width)
@@ -471,7 +471,7 @@ impl eframe::App for GuiApp {
                                     ui.horizontal(|ui| {
                                         if error.err_lvl == GuiErrorLevel::Critical {
                                             ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::TopDown), |ui| {
-                                                ui.label(error.desc);
+                                                ui.label(&*error.desc);
                                                 ui.horizontal(|ui| {
                                                     ui.spacing_mut().item_spacing.x = 0.0;
                                                     ui.label("Please report this bug to the ");
@@ -481,7 +481,7 @@ impl eframe::App for GuiApp {
                                             });
                                         } else {
                                             ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::TopDown), |ui| {
-                                                ui.label(error.desc);
+                                                ui.label(&*error.desc);
                                             });
                                         }
                                     });
