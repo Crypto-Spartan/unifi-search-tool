@@ -1,0 +1,127 @@
+﻿Model,Type,SKU,Name
+BZ2,uap,UAP,Access Point
+BZ2LR,uap,UAP-LR,Access Point Long-Range
+S216150,usw,US-16-150W,Switch 16 PoE (150 W)
+S224250,usw,US-24-250W,Switch 24 PoE (250 W)
+S224500,usw,US-24-500W,Switch 24 PoE (500 W)
+S248500,usw,US-48-500W,Switch 48 PoE (500 W)
+S248750,usw,US-48-750W,Switch 48 PoE (750 W)
+S28150,usw,US-8-150W,Switch 8 PoE (150 W)
+U2HSR,uap,UAP-Outdoor+,Access Point Outdoor+
+U2IW,uap,UAP-IW,Access Point In-Wall
+U2L48,uap,UAP-LR,Access Point Long-Range
+U2Lv2,uap,UAP-LRv2,Access Point Long-Range
+U2M,uap,UAP-Mini,Access Point Mini
+U2O,uap,UAP-Outdoor,Access Point Outdoor
+U2S48,uap,UAP,Access Point
+U2Sv2,uap,UAPv2,Access Point
+U5O,uap,UAP-Outdoor5,Access Point Outdoor 5
+U6ENT,uap,U6-Enterprise,Access Point WiFi 6 Enterprise
+U6EXT,uap,U6-Extender,Access Point WiFi 6 Extender
+U6IW,uap,U6-IW,Access Point WiFi 6 In-Wall
+U6M,uap,U6-Mesh,Access Point WiFi 6 Mesh
+U7E,uap,UAP-AC,Access Point AC
+U7EDU,uap,UAP-AC-EDU,Access Point AC EDU
+U7Ev2,uap,UAP-AC,Access Point AC
+U7HD,uap,UAP-AC-HD,Access Point AC HD
+U7IW,uap,UAP-AC-IW,Access Point AC In-Wall
+U7IWP,uap,UAP-AC-IW-Pro,Access Point AC In-Wall Pro
+U7LR,uap,UAP-AC-LR,Access Point AC Long-Range
+U7LT,uap,UAP-AC-Lite,Access Point AC Lite
+U7MP,uap,UAP-AC-M-Pro,Access Point AC Mesh Pro
+U7MSH,uap,UAP-AC-M,Access Point AC Mesh
+U7NHD,uap,UAP-nanoHD,Access Point nanoHD
+U7O,uap,UAP-AC-Outdoor,Access Point AC Outdoor
+U7P,uap,UAP-AC-Pro,Access Point AC Pro
+U7PG2,uap,UAP-AC-Pro,Access Point AC Pro
+U7SHD,uap,UAP-AC-SHD,Access Point AC SHD
+UAE6,uap,U6-Extender-EA,Access Point WiFi 6 Extender
+UAIW6,uap,U6-IW-EA,Access Point WiFi 6 In-Wall
+UAL6,uap,U6-Lite,Access Point WiFi 6 Lite
+UALR6,uap,U6-LR-EA,Access Point WiFi 6 Long-Range
+UALR6v2,uap,U6-LR,Access Point WiFi 6 Long-Range
+UALR6v3,uap,U6-LR,Access Point WiFi 6 Long-Range
+UAM6,uap,U6-Mesh-EA,Access Point WiFi 6 Mesh
+UAP6,uap,U6-LR,Access Point WiFi 6 Long-Range
+UAP6MP,uap,U6-Pro,Access Point WiFi 6 Pro
+UASXG,uas,UAS-XG,Application Server XG
+UBB,ubb,UBB,Building-to-Building Bridge
+UBBXG,ubb,UBB-XG,Building-to-Building Bridge XG
+UCK,uck,UCK,Cloud Key
+UCK-v2,uck,UCK,Cloud Key
+UCK-v3,uck,UCK,Cloud Key
+UCKG2,uck,UCK-G2,Cloud Key Gen2
+UCKP,uck,UCK-G2-Plus,Cloud Key Gen2 Plus
+UCMSH,uap,UAP-XG-Mesh,Access Point Mesh XG
+UCXG,uap,UAP-XG,Access Point XG
+UDC48X6,usw,USW-Leaf,Switch Leaf
+UDM,udm,UDM,Dream Machine
+UDMB,uap,UAP-BeaconHD,Access Point BeaconHD
+UDMPRO,udm,UDM-Pro,Dream Machine Pro
+UDMPROSE,udm,UDM-SE,Dream Machine Special Edition
+UDR,udm,UDR,Dream Router
+UDW,udm,UDW,Dream Wall
+UDWPRO,udm,UDWPRO,Dream Wall Pro
+UFLHD,uap,UAP-FlexHD,Access Point FlexHD
+UGW3,ugw,USG-3P,Security Gateway
+UGW4,ugw,USG-Pro-4,Security Gateway Pro
+UGWHD4,ugw,USG,Security Gateway
+UGWXG,ugw,USG-XG-8,Security Gateway XG
+UHDIW,uap,UAP-IW-HD,Access Point In-Wall HD
+ULTE,uap,U-LTE,UniFi LTE
+ULTEPEU,uap,U-LTE-Pro,UniFi LTE Pro
+ULTEPUS,uap,U-LTE-Pro,UniFi LTE Pro
+UP1,uap,USP-Plug,SmartPower Plug
+UP4,uph,UVP-X,Phone
+UP5,uph,UVP,Phone
+UP5c,uph,UVP,Phone
+UP5t,uph,UVP-Pro,Phone Professional
+UP5tc,uph,UVP-Pro,Phone Professional
+UP6,uap,USP-Strip,SmartPower Strip (6 ports)
+UP7,uph,UVP-Executive,Phone Executive
+UP7c,uph,UVP-Executive,Phone Executive
+US16P150,usw,US-16-150W,Switch 16 PoE (150 W)
+US24,usw,USW-24-G1,Switch 24
+US24P250,usw,US-24-250W,Switch 24 PoE (250 W)
+US24P500,usw,US-24-500W,Switch 24 PoE (500 W)
+US24PL2,usw,US-L2-24-PoE,Switch 24 PoE
+US24PRO,usw,USW-Pro-24-PoE,Switch Pro 24 PoE
+US24PRO2,usw,USW-Pro-24,Switch Pro 24
+US48,usw,US-48-G1,Switch 48
+US48P500,usw,US-48-500W,Switch 48 PoE (500 W)
+US48P750,usw,US-48-750W,Switch 48 PoE (750 W)
+US48PL2,usw,US-L2-48-PoE,Switch 48 PoE
+US48PRO,usw,USW-Pro-48-PoE,Switch Pro 48 PoE
+US48PRO2,usw,USW-Pro-48,Switch Pro 48
+US624P,usw,USW-Enterprise-24-PoE,Switch Enterprise 24 PoE
+US648P,usw,USW-Enterprise-48-PoE,Switch Enterprise 48 PoE
+US68P,usw,USW-Enterprise-8-PoE,Switch Enterprise 8 PoE
+US6XG150,usw,US-XG-6PoE,Switch 6 XG PoE
+US8,usw,US-8,Switch 8
+US8P150,usw,US-8-150W,Switch 8 PoE (150 W)
+US8P60,usw,US-8-60W,Switch 8 (60 W)
+USAGGPRO,usw,USW-Pro-Aggregation,Switch Aggregation Pro
+USC8,usw,US-8,Switch 8
+USC8P150,usw,US-8-150W,Switch 8 PoE (150 W)
+USC8P450,usw,USW-Industrial,Switch Industrial
+USC8P60,usw,US-8-60W,Switch 8 (60 W)
+USF5P,usw,USW-Flex,Switch Flex
+USFXG,usw,USW-Flex-XG,Switch Flex XG
+USL16LP,usw,USW-Lite-16-PoE,Switch Lite 16 PoE
+USL16P,usw,USW-16-PoE,Switch 16 PoE
+USL24,usw,USW-24-G2,Switch 24
+USL24P,usw,USW-24-PoE,Switch 24 PoE
+USL48,usw,USW-48-G2,Switch 48
+USL48P,usw,USW-48-PoE,Switch 48 PoE
+USL8A,usw,USW-Aggregation,Switch Aggregation
+USL8LP,usw,USW-Lite-8-PoE,Switch Lite 8 PoE
+USL8MP,usw,USW-Mission-Critical,Switch Mission Critical
+USMINI,usw,USW-Flex-Mini,Switch Flex Mini
+USPPDUP,usw,USP-PDU-Pro,SmartPower PDU Pro
+USPRPS,usw,USP-RPS,SmartPower Redundant Power System
+USXG,usw,US-16-XG,Switch XG 16
+USXG24,usw,USW-EnterpriseXG-24,Switch Enterprise XG 24
+UXBSDM,uap,UWB-XG-BK,WiFi BaseStation XG
+UXGPRO,uxg,UXG-Pro,Next-Generation Gateway Pro
+UXSDM,uap,UWB-XG,WiFi BaseStation XG
+p2N,uap,PICOM2HP,PicoStation M2 HP
