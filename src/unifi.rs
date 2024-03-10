@@ -10,25 +10,13 @@ use zeroize::Zeroize;
 //use serde_json::{Value, Result};
 //use std::fs;
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct UnifiSearchInfo {
     pub username: String,
     pub password: String,
     pub server_url: String,
     pub mac_address: String,
     pub accept_invalid_certs: bool,
-}
-
-impl Default for UnifiSearchInfo {
-    fn default() -> Self {
-        Self {
-            username: "".into(),
-            password: "".into(),
-            server_url: "".into(),
-            mac_address: "".into(),
-            accept_invalid_certs: false,
-        }
-    }
 }
 
 pub type UnifiSearchResult = Result<UnifiSearchStatus, UnifiSearchError>;
