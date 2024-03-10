@@ -252,15 +252,15 @@ impl eframe::App for GuiApp {
                         || mac_address.is_empty() {
                             *popup_window_option = Some(PopupWindow::Error(
                                 GuiError::new_standard(
-                                    "Required Fields".into(),
-                                    "Username, Password, Server URL, & MAC Address are all required fields.".into()
+                                    Box::from("Required Fields"),
+                                    Box::from("Username, Password, Server URL, & MAC Address are all required fields.")
                                 )
                             ));
                         } else if !mac_addr_regex.is_match(mac_address).unwrap_or(false) {
                             *popup_window_option = Some(PopupWindow::Error(
                                 GuiError::new_standard(
-                                    "Invalid MAC Address".into(),
-                                    "MAC Address must be formatted like XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX with hexadecimal characters only.".into()
+                                    Box::from("Invalid MAC Address"),
+                                    Box::from("MAC Address must be formatted like XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX with hexadecimal characters only.")
                                 )
                             ));
                         } else {
@@ -319,7 +319,7 @@ impl eframe::App for GuiApp {
                                                 UnifiSearchStatus::DeviceNotFound => {
                                                     *popup_window_option = Some(PopupWindow::Error(
                                                         GuiError::new_info(
-                                                            "Device Not Found".into(),
+                                                            Box::from("Device Not Found"),
                                                             format!("Unable to find device with MAC Address {}", mac_address).into_boxed_str()
                                                         )
                                                     ));
