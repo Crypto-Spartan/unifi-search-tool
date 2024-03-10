@@ -11,12 +11,9 @@ fn main() {
 
     let native_options = eframe::NativeOptions{
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([750., 260.])
+            .with_inner_size([800., 280.])
             .with_min_inner_size([500., 170.])
             .with_icon(icon),
-        // initial_window_size: Some(egui::Vec2{x:750., y:260.}),
-        // min_window_size: Some(egui::Vec2{x:500., y:170.}),
-        // icon_data: Some(icon),
         ..Default::default()
     };
     let error = eframe::run_native(
