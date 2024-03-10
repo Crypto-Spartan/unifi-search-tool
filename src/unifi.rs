@@ -1,11 +1,11 @@
 //https://ubntwiki.com/products/software/unifi-controller/api
 
+use crate::gui::{ChannelsForUnifiThread, ThreadSignal};
 use reqwest::blocking::Client;
 use reqwest::header::REFERER;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::time::Duration;
-use crate::gui::{ChannelsForUnifiThread, ThreadSignal};
 use zeroize::Zeroize;
 //use serde_json::{Value, Result};
 //use std::fs;
@@ -31,24 +31,20 @@ impl Default for UnifiSearchInfo {
     }
 }
 
+pub type UnifiSearchResult = Result<UnifiSearchStatus, UnifiSearchError>;
+type UnifiLoginResult = Result<Client, ErrorCode>;
+type ErrorCode = usize;
+
+
 #[derive(Debug, Clone)]
 pub enum UnifiSearchStatus {
-    DeviceFound(UnifiDeviceFound),
+    DeviceFound(UnifiDevice),
     DeviceNotFound,
     Cancelled,
-    Error(UnifiSearchError),
-}
-
-pub type ErrorCode = usize;
-#[derive(Debug, Clone)]
-pub enum UnifiSearchError {
-    Login(ErrorCode),
-    APINetwork(ErrorCode),
-    APIParsing(ErrorCode),
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct UnifiDeviceFound {
+pub struct UnifiDevice {
     pub mac_found: String,
     pub device_label: DeviceLabel,
     pub site: String,
@@ -62,6 +58,42 @@ pub enum DeviceLabel {
     Model(String),
 }
 
+#[derive(Debug, Clone)]
+pub struct UnifiSearchError {
+    pub code: usize,
+    pub kind: UnifiErrorKind,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum UnifiErrorKind {
+    Login,
+    Network,
+    APIParsing,
+}
+
+impl UnifiSearchError {
+    fn new_login(code: usize) -> Self {
+        Self {
+            code,
+            kind: UnifiErrorKind::Login,
+        }
+    }
+
+    fn new_network(code: usize) -> Self {
+        Self {
+            code,
+            kind: UnifiErrorKind::Network,
+        }
+    }
+
+    fn new_api_parsing(code: usize) -> Self {
+        Self {
+            code,
+            kind: UnifiErrorKind::APIParsing,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Deserialize)]
 struct UnifiAllSitesJson {
     data: Vec<UnifiSiteJson>,
@@ -70,8 +102,8 @@ struct UnifiAllSitesJson {
 #[derive(Debug, Clone, Deserialize)]
 struct UnifiSiteJson {
     #[serde(rename = "name")]
-    code: String,
-    desc: String,
+    code: Box<str>,
+    desc: Box<str>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -81,20 +113,20 @@ struct UnifiAllSiteDevicesJson {
 
 #[derive(Debug, Clone, Deserialize)]
 struct UnifiSiteDeviceJson {
-    mac: String,
+    mac: Box<str>,
     state: usize,
     adopted: bool,
     //disabled: bool,
     #[serde(rename = "type")]
-    device_type: String,
-    model: String,
-    name: Option<String>,
+    device_type: Box<str>,
+    model: Box<str>,
+    name: Option<Box<str>>,
 }
 
 pub fn run_unifi_search(
     search_info: &mut UnifiSearchInfo,
     channels_for_unifi: &mut ChannelsForUnifiThread,
-) -> UnifiSearchStatus {
+) -> UnifiSearchResult {
     let UnifiSearchInfo {
         username,
         password,
@@ -103,10 +135,9 @@ pub fn run_unifi_search(
         ref accept_invalid_certs,
     } = search_info;
 
-    if let Some(client) = login_with_client(username, password, server_url, *accept_invalid_certs) {
-        find_unifi_device(client, server_url, mac_address, channels_for_unifi)
-    } else {
-        UnifiSearchStatus::Error(UnifiSearchError::Login(101))
+    match login_with_client(username, password, server_url, *accept_invalid_certs) {
+        Ok(client) => find_unifi_device(client, server_url, mac_address, channels_for_unifi),
+        Err(code) => Err(UnifiSearchError::new_login(code)),
     }
 }
 
@@ -115,19 +146,19 @@ fn login_with_client(
     password: &mut String,
     base_url: &String,
     accept_invalid_certs: bool,
-) -> Option<Client> {
+) -> UnifiLoginResult {
     let mut login_data: HashMap<&str, &str> = HashMap::new();
     login_data.insert("username", username);
     login_data.insert("password", password);
 
     let Ok(client) = Client::builder()
-        .timeout(Duration::from_secs(10))
+        .timeout(Duration::from_secs(15))
         .danger_accept_invalid_certs(accept_invalid_certs)
         .cookie_store(true)
         .build()
-        else {
-            return None
-        };
+    else {
+        return Err(101);
+    };
 
     let login = client
         .post(format!("{}/api/login", base_url))
@@ -142,12 +173,12 @@ fn login_with_client(
 
     if let Some(login_status) = login {
         if login_status.status().is_success() {
-            Some(client)
+            Ok(client)
         } else {
-            None
+            Err(103)
         }
     } else {
-        None
+        Err(102)
     }
 }
 
@@ -156,22 +187,22 @@ fn find_unifi_device(
     base_url: &str,
     mac_to_search: &str,
     channels_for_unifi: &mut ChannelsForUnifiThread,
-) -> UnifiSearchStatus /*Option<UnifiDevice>*/ {
+) -> UnifiSearchResult {
     // check for cancel signal
     if let Ok(s) = channels_for_unifi.signal_rx.try_recv() {
         if s == ThreadSignal::CancelSearch {
-            return UnifiSearchStatus::Cancelled;
+            return Ok(UnifiSearchStatus::Cancelled);
         }
     }
 
     let Ok(sites_get) = client.get(format!("{}/api/self/sites", base_url)).send() else {
-        return UnifiSearchStatus::Error(UnifiSearchError::APINetwork(201));
+        return Err(UnifiSearchError::new_network(201));
     };
     let Ok(sites_raw) = sites_get.text() else {
-        return UnifiSearchStatus::Error(UnifiSearchError::APIParsing(301));
+        return Err(UnifiSearchError::new_api_parsing(301));
     };
     let Ok::<UnifiAllSitesJson, _>(sites_parsed) = serde_json::from_str(&sites_raw) else {
-        return UnifiSearchStatus::Error(UnifiSearchError::APIParsing(302));
+        return Err(UnifiSearchError::new_api_parsing(302));
     };
     let unifi_sites = sites_parsed.data;
     let unifi_sites_len = unifi_sites.len() as f32;
@@ -180,7 +211,7 @@ fn find_unifi_device(
         // check for cancel signal
         if let Ok(v) = channels_for_unifi.signal_rx.try_recv() {
             if v == ThreadSignal::CancelSearch {
-                return UnifiSearchStatus::Cancelled;
+                return Ok(UnifiSearchStatus::Cancelled);
             }
         }
         {
@@ -198,36 +229,34 @@ fn find_unifi_device(
             ))
             .send()
         else {
-            return UnifiSearchStatus::Error(UnifiSearchError::APINetwork(202));
+            return Err(UnifiSearchError::new_network(202));
         };
+        // get the string of the API response
         let Ok(devices_raw) = devices_get.text() else {
-            return UnifiSearchStatus::Error(UnifiSearchError::APIParsing(303));
+            return Err(UnifiSearchError::new_api_parsing(303));
         };
-        // let s: Result<UnifiAllSiteDevicesJson> = serde_json::from_str(&devices_raw);
-        // dbg!(s);
-        //dbg!(serde_json::from_str(&devices_raw));
+        // parse the API response with serde
         let Ok::<UnifiAllSiteDevicesJson, _>(devices_parsed) = serde_json::from_str(&devices_raw)
         else {
-            return UnifiSearchStatus::Error(UnifiSearchError::APIParsing(304));
+            return Err(UnifiSearchError::new_api_parsing(304));
         };
 
-        //let devices_serde: Value = serde_json::from_str(&devices_raw).unwrap();
         let site_devices = devices_parsed.data;
-        //let mut state: String;
         // loop through the devices found in the site to see if the MAC address matches what we're searching for
-        for device in site_devices.iter() {
+        for device in site_devices.into_iter() {
             if mac_to_search == device.mac.to_lowercase() {
                 // set percentage to 100%
-                let _ = channels_for_unifi.percentage_tx.try_send(1f32);
+                {
+                    let _ = channels_for_unifi.percentage_tx.try_send(1f32);
+                }
 
                 let state = match device.state {
                     0 => String::from("Offline"),
                     1 => String::from("Connected"),
                     _ => String::from("Unknown"),
                 };
-
                 let device_label = {
-                    match &device.name {
+                    match device.name {
                         Some(device_name) => DeviceLabel::Name(device_name.to_string()),
                         None => DeviceLabel::Model(format!(
                             "{} / {}",
@@ -237,15 +266,15 @@ fn find_unifi_device(
                     }
                 };
 
-                return UnifiSearchStatus::DeviceFound(UnifiDeviceFound {
+                return Ok(UnifiSearchStatus::DeviceFound(UnifiDevice {
                     mac_found: device.mac.to_lowercase(),
                     device_label,
                     site: site.desc.to_string(),
                     state,
                     adopted: device.adopted,
-                });
+                }));
             }
         }
     }
-    return UnifiSearchStatus::DeviceNotFound;
+    return Ok(UnifiSearchStatus::DeviceNotFound);
 }

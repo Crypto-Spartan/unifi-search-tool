@@ -1,5 +1,5 @@
 use crate::unifi::{
-    run_unifi_search, DeviceLabel, UnifiDeviceFound, UnifiSearchError, UnifiSearchInfo,
+    run_unifi_search, DeviceLabel, UnifiDevice, UnifiErrorKind, UnifiSearchInfo, UnifiSearchResult,
     UnifiSearchStatus,
 };
 use fancy_regex::Regex;
@@ -67,7 +67,7 @@ pub enum ThreadSignal {
 #[derive(Debug, Clone, PartialEq)]
 enum PopupWindow {
     SearchProgress(f32),
-    SearchResult(UnifiDeviceFound),
+    SearchResult(UnifiDevice),
     Error(GuiError),
     DisplayCancel,
 }
@@ -76,14 +76,14 @@ struct ChannelsForGuiThread {
     search_info_tx: Sender<UnifiSearchInfo>,
     signal_tx: Sender<ThreadSignal>,
     percentage_rx: Receiver<f32>,
-    device_rx: Receiver<UnifiSearchStatus>,
+    device_rx: Receiver<UnifiSearchResult>,
 }
 
 pub struct ChannelsForUnifiThread {
     pub search_info_rx: Receiver<UnifiSearchInfo>,
     pub signal_rx: Receiver<ThreadSignal>,
     pub percentage_tx: Sender<f32>,
-    pub device_tx: Sender<UnifiSearchStatus>,
+    pub device_tx: Sender<UnifiSearchResult>,
 }
 
 pub struct GuiApp {
@@ -309,48 +309,52 @@ impl eframe::App for GuiApp {
                                     *popup_window_option = Some(PopupWindow::SearchProgress(new_percentage));
                                 }
                                 // check channel to see if we have a search result
-                                if let Ok(unifi_search_status) = channels_for_gui.device_rx.try_recv() {
-                                    match unifi_search_status {
-                                        UnifiSearchStatus::DeviceFound(unifi_device) => {
-                                            *popup_window_option = Some(PopupWindow::SearchResult(unifi_device));
+                                if let Ok(unifi_search_result) = channels_for_gui.device_rx.try_recv() {
+                                    match unifi_search_result {
+                                        Ok(unifi_search_status) => {
+                                            match unifi_search_status {
+                                                UnifiSearchStatus::DeviceFound(unifi_device) => {
+                                                    *popup_window_option = Some(PopupWindow::SearchResult(unifi_device));
+                                                },
+                                                UnifiSearchStatus::DeviceNotFound => {
+                                                    *popup_window_option = Some(PopupWindow::Error(
+                                                        GuiError::new_info(
+                                                            "Device Not Found".to_string(),
+                                                            format!("Unable to find device with MAC Address {}", mac_address)
+                                                        )
+                                                    ));
+                                                },
+                                                UnifiSearchStatus::Cancelled => {
+                                                    *popup_window_option = None;
+                                                },
+                                            }
                                         },
-                                        UnifiSearchStatus::DeviceNotFound => {
-                                            *popup_window_option = Some(PopupWindow::Error(
-                                                GuiError::new_info(
-                                                    "Device Not Found".to_string(),
-                                                    format!("Unable to find device with MAC Address {}", mac_address)
-                                                )
-                                            ));
-                                        },
-                                        UnifiSearchStatus::Cancelled => {
-                                            *popup_window_option = None;
-                                        },
-                                        UnifiSearchStatus::Error(search_error) => {
-                                            *popup_window_option = match search_error {
-                                                UnifiSearchError::Login(error_code) => {
+                                        Err(unifi_search_error) => {
+                                            *popup_window_option = match unifi_search_error.kind {
+                                                UnifiErrorKind::Login => {
                                                     Some(PopupWindow::Error(
                                                         GuiError::new_standard_with_code(
                                                             "Login Failed".to_string(),
                                                             format!("Unable to login to {}", server_url),
-                                                            error_code
+                                                            unifi_search_error.code
                                                         )
                                                     ))
                                                 },
-                                                UnifiSearchError::APINetwork(error_code) => {
+                                                UnifiErrorKind::Network => {
                                                     Some(PopupWindow::Error(
                                                         GuiError::new_standard_with_code(
                                                             "Network Error".to_string(),
                                                             format!("Unable to reach {}", server_url),
-                                                            error_code
+                                                            unifi_search_error.code
                                                         )
                                                     ))
                                                 },
-                                                UnifiSearchError::APIParsing(error_code) => {
+                                                UnifiErrorKind::APIParsing => {
                                                     Some(PopupWindow::Error(
                                                         GuiError::new_critical_with_code(
                                                             "API Parsing Error".to_string(),
                                                             "Error parsing API data".to_string(),
-                                                            error_code
+                                                            unifi_search_error.code
                                                         )
                                                     ))
                                                 }
@@ -373,7 +377,7 @@ impl eframe::App for GuiApp {
                             });
                     },
                     PopupWindow::SearchResult(unifi_device) => {
-                        let UnifiDeviceFound { mac_found, device_label, site, state, adopted } = unifi_device.clone();
+                        let UnifiDevice { mac_found, device_label, site, state, adopted } = unifi_device.clone();
 
                         // set the name/label of the device if a name wasn't found in the controller
                         let gui_label;
@@ -507,7 +511,7 @@ impl eframe::App for GuiApp {
                                 });
                             });
 
-                        if let Ok(UnifiSearchStatus::Cancelled) = channels_for_gui.device_rx.try_recv() {
+                        if let Ok(Ok(UnifiSearchStatus::Cancelled)) = channels_for_gui.device_rx.recv() {
                             *popup_window_option = None;
                         }
                     }
