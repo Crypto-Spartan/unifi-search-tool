@@ -30,7 +30,7 @@ fn load_icon(image_const: &[u8]) -> egui::viewport::IconData {
     let (icon_rgba, icon_width, icon_height) = {
         //let image = image::open(path)
         let image = image::load_from_memory(image_const)
-            .expect("Failed to open icon path")
+            .expect("Failed to load icon from binary")
             .into_rgba8();
         let (width, height) = image.dimensions();
         let rgba = image.into_raw();
