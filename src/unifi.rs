@@ -1,6 +1,6 @@
 //https://ubntwiki.com/products/software/unifi-controller/api
 
-use crate::gui::{ChannelsForUnifiThread, ThreadSignal};
+use crate::gui::{ChannelsForUnifiThread, CancelSignal};
 use reqwest::blocking::Client;
 use reqwest::header::REFERER;
 use serde::Deserialize;
@@ -176,8 +176,8 @@ fn find_unifi_device(
     channels_for_unifi: &mut ChannelsForUnifiThread,
 ) -> UnifiSearchResult {
     // check for cancel signal
-    if let Ok(s) = channels_for_unifi.signal_rx.try_recv() {
-        if s == ThreadSignal::CancelSearch {
+    if let Ok(v) = channels_for_unifi.signal_rx.try_recv() {
+        if v == CancelSignal {
             return Ok(UnifiSearchStatus::Cancelled);
         }
     }
@@ -197,7 +197,7 @@ fn find_unifi_device(
     for (iter_num, site) in unifi_sites.iter().enumerate() {
         // check for cancel signal
         if let Ok(v) = channels_for_unifi.signal_rx.try_recv() {
-            if v == ThreadSignal::CancelSearch {
+            if v == CancelSignal {
                 return Ok(UnifiSearchStatus::Cancelled);
             }
         }

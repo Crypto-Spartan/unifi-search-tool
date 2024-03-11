@@ -60,9 +60,7 @@ impl GuiError {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum ThreadSignal {
-    CancelSearch,
-}
+pub struct CancelSignal;
 
 #[derive(Debug, Clone, PartialEq)]
 enum PopupWindow {
@@ -74,14 +72,14 @@ enum PopupWindow {
 
 struct ChannelsForGuiThread {
     search_info_tx: Sender<UnifiSearchInfo>,
-    signal_tx: Sender<ThreadSignal>,
+    signal_tx: Sender<CancelSignal>,
     percentage_rx: Receiver<f32>,
     device_rx: Receiver<UnifiSearchResult>,
 }
 
 pub struct ChannelsForUnifiThread {
     pub search_info_rx: Receiver<UnifiSearchInfo>,
-    pub signal_rx: Receiver<ThreadSignal>,
+    pub signal_rx: Receiver<CancelSignal>,
     pub percentage_tx: Sender<f32>,
     pub device_tx: Sender<UnifiSearchResult>,
 }
@@ -369,7 +367,7 @@ impl eframe::App for GuiApp {
                                 ui.horizontal(|ui| {
                                     ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::TopDown), |ui| {
                                         if ui.button("Cancel").clicked() {
-                                            channels_for_gui.signal_tx.send(ThreadSignal::CancelSearch).unwrap();
+                                            channels_for_gui.signal_tx.send(CancelSignal).unwrap();
                                             *popup_window_option = Some(PopupWindow::DisplayCancel);
                                         }
                                     });
