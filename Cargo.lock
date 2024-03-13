@@ -1308,17 +1308,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fancy-regex"
-version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "531e46835a22af56d1e3b66f04844bed63158bc094a628bec1d321d9b4c44bf2"
-dependencies = [
- "bit-set",
- "regex-automata 0.4.6",
- "regex-syntax 0.8.2",
-]
-
-[[package]]
 name = "fastrand"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3903,9 +3892,10 @@ dependencies = [
  "eframe",
  "egui",
  "embed-resource",
- "fancy-regex",
  "flume 0.11.0",
  "image 0.25.0",
+ "once_cell",
+ "regex-automata 0.4.6",
  "reqwest",
  "serde",
  "serde_json",

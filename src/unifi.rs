@@ -1,14 +1,12 @@
 //https://ubntwiki.com/products/software/unifi-controller/api
 
-use crate::gui::{ChannelsForUnifiThread, CancelSignal};
+use crate::gui::{CancelSignal, ChannelsForUnifiThread};
 use reqwest::blocking::Client;
 use reqwest::header::REFERER;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::time::Duration;
 use zeroize::Zeroize;
-//use serde_json::{Value, Result};
-//use std::fs;
 
 #[derive(Default, Debug, Clone)]
 pub struct UnifiSearchInfo {

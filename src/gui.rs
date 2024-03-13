@@ -2,9 +2,20 @@ use crate::unifi::{
     run_unifi_search, DeviceLabel, UnifiDevice, UnifiErrorKind, UnifiSearchInfo, UnifiSearchResult,
     UnifiSearchStatus,
 };
-use fancy_regex::Regex;
 use flume::{Receiver, Sender};
+use regex_automata::{
+    dfa::{dense, Automaton},
+    Anchored, Input,
+};
 use std::thread;
+
+use crate::mac_addr_validation::MAC_ADDR_REGEX;
+
+fn regex_is_match<V: AsRef<[u32]>, S: AsRef<[u8]>>(regex: &dense::DFA<V>, text: S) -> bool {
+    (&regex)
+        .try_search_fwd(&Input::new(&text).anchored(Anchored::Yes).earliest(true))
+        .map_or(false, |x| x.is_some())
+}
 
 #[derive(Debug, Clone, PartialEq)]
 enum FontSize {
@@ -86,7 +97,6 @@ pub struct ChannelsForUnifiThread {
 
 pub struct GuiApp {
     font_size_enum: FontSize,
-    mac_addr_regex: Regex,
     unifi_search_info: UnifiSearchInfo,
     channels_for_gui: ChannelsForGuiThread,
     popup_window_option: Option<PopupWindow>,
@@ -95,9 +105,6 @@ pub struct GuiApp {
 impl Default for GuiApp {
     fn default() -> Self {
         let font_size_enum = FontSize::Medium;
-
-        // create regex to ensure mac addresses are formatted properly
-        let mac_addr_regex = Regex::new(r"^(?:\h{2}([-:]))(?:\h{2}\1){4}\h{2}$").unwrap();
 
         // create flume channels to communicate with the background thread
         let (search_info_tx, search_info_rx) = flume::bounded(1);
@@ -132,7 +139,6 @@ impl Default for GuiApp {
 
         Self {
             font_size_enum,
-            mac_addr_regex,
             unifi_search_info: UnifiSearchInfo::default(),
             channels_for_gui,
             popup_window_option: None,
@@ -158,7 +164,6 @@ impl eframe::App for GuiApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let Self {
             font_size_enum,
-            mac_addr_regex,
             unifi_search_info,
             channels_for_gui,
             popup_window_option,
@@ -254,7 +259,7 @@ impl eframe::App for GuiApp {
                                     Box::from("Username, Password, Server URL, & MAC Address are all required fields.")
                                 )
                             ));
-                        } else if !mac_addr_regex.is_match(mac_address).unwrap_or(false) {
+                        } else if !regex_is_match(&*MAC_ADDR_REGEX, &*mac_address) {
                             *popup_window_option = Some(PopupWindow::Error(
                                 GuiError::new_standard(
                                     Box::from("Invalid MAC Address"),
