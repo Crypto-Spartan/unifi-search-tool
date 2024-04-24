@@ -4,10 +4,8 @@ mod popup;
 use crate::unifi::search::{UnifiSearchInfo, UnifiSearchResult};
 use flume::{Receiver, Sender};
 
-
 #[derive(Debug, Eq, PartialEq)]
 pub(crate) struct CancelSignal;
-
 
 struct ChannelsGuiThread {
     search_info_tx: Sender<UnifiSearchInfo>,
