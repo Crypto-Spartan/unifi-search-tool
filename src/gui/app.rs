@@ -1,14 +1,13 @@
 use crate::{
     gui::{
-        popup::{PopupWindow, WindowMeta, GuiError},
-        {ChannelsGuiThread, ChannelsSearchThread}
+        popup::{GuiError, PopupWindow, WindowMeta},
+        {ChannelsGuiThread, ChannelsSearchThread},
     },
     mac_address::validation::text_is_valid_mac,
-    unifi::search::{UnifiSearchInfo, find_unifi_device}
+    unifi::search::{find_unifi_device, UnifiSearchInfo},
 };
 use std::thread;
 use zeroize::Zeroize;
-
 
 #[derive(Debug, Clone, PartialEq)]
 enum FontSize {
@@ -25,7 +24,7 @@ struct GuiInputFields {
     server_url_input: String,
     mac_addr_input: String,
     invalid_certs_checked: bool,
-    remember_pass_checked: bool
+    remember_pass_checked: bool,
 }
 
 pub(crate) struct GuiApp<'a> {
@@ -34,7 +33,6 @@ pub(crate) struct GuiApp<'a> {
     gui_channels: ChannelsGuiThread,
     popup_window_option: Option<PopupWindow<'a>>,
 }
-
 
 impl<'a> eframe::App for GuiApp<'a> {
     /// Called each time the UI needs repainting, which may be many times per second.
@@ -48,13 +46,12 @@ impl<'a> eframe::App for GuiApp<'a> {
         } = self;
 
         egui::CentralPanel::default().show(ctx, |ui| {
-
             let ui_scale_num = {
                 match font_size_enum {
                     FontSize::Small => 1.25,
                     FontSize::Medium => 1.5,
                     FontSize::Large => 1.75,
-                    FontSize::ExtraLarge => 2.
+                    FontSize::ExtraLarge => 2.,
                 }
             };
             if ctx.pixels_per_point() > ui_scale_num || ctx.pixels_per_point() < ui_scale_num {
@@ -64,19 +61,28 @@ impl<'a> eframe::App for GuiApp<'a> {
             ui.shrink_height_to_current();
 
             GuiApp::create_menu_bar(ui, font_size_enum);
-            GuiApp::create_main_window(ui, gui_input_fields, popup_window_option, &mut gui_channels.search_info_tx);
+            GuiApp::create_main_window(
+                ui,
+                gui_input_fields,
+                popup_window_option,
+                &mut gui_channels.search_info_tx,
+            );
             let main_window_size: egui::Vec2 = ui.available_size();
-            GuiApp::handle_popup_window(ctx, popup_window_option, main_window_size, &gui_input_fields.mac_addr_input, gui_channels);
-            
+            GuiApp::handle_popup_window(
+                ctx,
+                popup_window_option,
+                main_window_size,
+                &gui_input_fields.mac_addr_input,
+                gui_channels,
+            );
+
             // displays a small warning message in the bottom right corner if not built in release mode
             ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
                 egui::warn_if_debug_build(ui);
             });
         });
     }
-
 }
-
 
 impl<'a> Default for GuiApp<'a> {
     fn default() -> Self {
@@ -109,11 +115,14 @@ impl<'a> Default for GuiApp<'a> {
         let _ = thread::spawn(move || loop {
             let mut search_info = search_thread_channels.search_info_rx.recv()
                 .expect("receiving struct UnifiSearchInfo through channel search_info_rx should be successful");
-            let unifi_search_result = find_unifi_device(&mut search_info, &mut search_thread_channels);
+            let unifi_search_result =
+                find_unifi_device(&mut search_info, &mut search_thread_channels);
             search_thread_channels
                 .device_tx
                 .send(unifi_search_result)
-                .expect("sending unifi_search_result through channel device_tx should be successful");
+                .expect(
+                    "sending unifi_search_result through channel device_tx should be successful",
+                );
         });
 
         Self {
@@ -153,20 +162,24 @@ impl<'a> GuiApp<'a> {
             });
             ui.add_space(150.);
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                ui.hyperlink_to("Source Code", "https://github.com/Crypto-Spartan/unifi-search-tool");
+                ui.hyperlink_to(
+                    "Source Code",
+                    "https://github.com/Crypto-Spartan/unifi-search-tool",
+                );
                 ui.label(" | ");
-                ui.hyperlink_to("License", "https://github.com/Crypto-Spartan/unifi-search-tool/blob/master/LICENSE");
+                ui.hyperlink_to(
+                    "License",
+                    "https://github.com/Crypto-Spartan/unifi-search-tool/blob/master/LICENSE",
+                );
             });
-
         });
     }
-
 
     fn create_main_window(
         ui: &mut egui::Ui,
         gui_input_fields: &mut GuiInputFields,
         popup_window_option: &mut Option<PopupWindow>,
-        search_info_tx: &mut flume::Sender<UnifiSearchInfo>
+        search_info_tx: &mut flume::Sender<UnifiSearchInfo>,
     ) {
         let GuiInputFields {
             username_input,
@@ -174,7 +187,7 @@ impl<'a> GuiApp<'a> {
             server_url_input,
             mac_addr_input,
             invalid_certs_checked,
-            remember_pass_checked
+            remember_pass_checked,
         } = gui_input_fields;
 
         // title in main window
@@ -183,23 +196,29 @@ impl<'a> GuiApp<'a> {
         });
 
         // use of grid for the input fields for formatting/spacing
-        egui::Grid::new("some_unique_id #1").num_columns(2).show(ui, |ui| {
-            ui.label("Username");
-            ui.add(egui::TextEdit::singleline(username_input).desired_width(f32::INFINITY));
-            ui.end_row();
+        egui::Grid::new("some_unique_id #1")
+            .num_columns(2)
+            .show(ui, |ui| {
+                ui.label("Username");
+                ui.add(egui::TextEdit::singleline(username_input).desired_width(f32::INFINITY));
+                ui.end_row();
 
-            ui.label("Password");
-            ui.add(egui::TextEdit::singleline(password_input).password(true).desired_width(f32::INFINITY));
-            ui.end_row();
+                ui.label("Password");
+                ui.add(
+                    egui::TextEdit::singleline(password_input)
+                        .password(true)
+                        .desired_width(f32::INFINITY),
+                );
+                ui.end_row();
 
-            ui.label("Server URL");
-            ui.add(egui::TextEdit::singleline(server_url_input).desired_width(f32::INFINITY));
-            ui.end_row();
+                ui.label("Server URL");
+                ui.add(egui::TextEdit::singleline(server_url_input).desired_width(f32::INFINITY));
+                ui.end_row();
 
-            ui.label("MAC Address");
-            ui.add(egui::TextEdit::singleline(mac_addr_input).desired_width(f32::INFINITY));
-            ui.end_row();
-        });
+                ui.label("MAC Address");
+                ui.add(egui::TextEdit::singleline(mac_addr_input).desired_width(f32::INFINITY));
+                ui.end_row();
+            });
 
         ui.checkbox(remember_pass_checked, "Remember Password");
         ui.checkbox(invalid_certs_checked, "Accept Invalid HTTPS Certificate");
@@ -208,13 +227,12 @@ impl<'a> GuiApp<'a> {
         GuiApp::create_search_button(ui, gui_input_fields, popup_window_option, search_info_tx);
     }
 
-
     // add "Search Unifi" button
     fn create_search_button(
         ui: &mut egui::Ui,
         gui_input_fields: &mut GuiInputFields,
         popup_window_option: &mut Option<PopupWindow>,
-        search_info_tx: &mut flume::Sender<UnifiSearchInfo>
+        search_info_tx: &mut flume::Sender<UnifiSearchInfo>,
     ) {
         // all fields with `ref` are immutable when destructured
         let GuiInputFields {
@@ -223,13 +241,13 @@ impl<'a> GuiApp<'a> {
             ref server_url_input,
             ref mac_addr_input,
             ref invalid_certs_checked,
-            ref remember_pass_checked
+            ref remember_pass_checked,
         } = gui_input_fields;
-        
+
         ui.horizontal(|ui| {
             ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::TopDown), |ui| {
                 if ui.button("Search Unifi").clicked() {
-                    
+
                     // if any fields are empty, display error
                     if username_input.is_empty()
                     || password_input.is_empty()
@@ -252,7 +270,7 @@ impl<'a> GuiApp<'a> {
                     // other checks passed, run the search
                     } else {
                         *popup_window_option = Some(PopupWindow::SearchProgress(0.));
-                        
+
                         let username = username_input.to_string();
                         // don't zeroize the password if remember password checkbox is checked
                         // password is always zeroized on the search thread immediately after authentication
@@ -268,7 +286,7 @@ impl<'a> GuiApp<'a> {
                         let server_url = server_url_input.to_string();
                         let mac_to_search = mac_addr_input.replace("-", ":").to_lowercase();
                         let accept_invalid_certs = *invalid_certs_checked;
-                        
+
                         search_info_tx.send(
                             UnifiSearchInfo {
                                 username,
@@ -284,13 +302,12 @@ impl<'a> GuiApp<'a> {
         });
     }
 
-
     fn handle_popup_window(
         ctx: &egui::Context,
         popup_window_option: &mut Option<PopupWindow>,
         main_window_size: egui::Vec2,
         mac_addr_input: &str,
-        gui_channels: &mut ChannelsGuiThread
+        gui_channels: &mut ChannelsGuiThread,
     ) {
         if let Some(popup_window) = popup_window_option.clone() {
             let popup_metadata = {
@@ -299,22 +316,36 @@ impl<'a> GuiApp<'a> {
                     ctx,
                     width,
                     default_x_pos: (main_window_size.x / 2.) - (width / 2.),
-                    default_y_pos: main_window_size.y * 0.15
+                    default_y_pos: main_window_size.y * 0.15,
                 }
             };
-            
+
             match popup_window {
                 PopupWindow::SearchProgress(percentage) => {
-                    PopupWindow::render_search_progress(popup_metadata, popup_window_option, percentage, mac_addr_input, gui_channels);
-                },
+                    PopupWindow::create_search_progress(
+                        popup_metadata,
+                        popup_window_option,
+                        percentage,
+                        mac_addr_input,
+                        gui_channels,
+                    );
+                }
                 PopupWindow::SearchResult(unifi_device) => {
-                    PopupWindow::render_search_result(popup_metadata, popup_window_option, unifi_device);
-                },
+                    PopupWindow::create_search_result(
+                        popup_metadata,
+                        popup_window_option,
+                        unifi_device,
+                    );
+                }
                 PopupWindow::Error(error) => {
-                    PopupWindow::render_error(popup_metadata, popup_window_option, error);
-                },
+                    PopupWindow::create_error(popup_metadata, popup_window_option, error);
+                }
                 PopupWindow::DisplayCancel => {
-                    PopupWindow::render_cancel(popup_metadata, popup_window_option, &mut gui_channels.device_rx);
+                    PopupWindow::create_cancel(
+                        popup_metadata,
+                        popup_window_option,
+                        &mut gui_channels.device_rx,
+                    );
                 }
             }
         }

@@ -2,13 +2,12 @@ use crate::{
     gui::{CancelSignal, ChannelsSearchThread},
     mac_address::validation::text_is_valid_mac,
     unifi::{
-        api::{UnifiClient, UnifiAPIError},
-        devices::{UnifiDeviceBasic, get_device_label}
-    }
+        api::{UnifiAPIError, UnifiClient},
+        devices::UnifiDeviceBasic,
+    },
 };
 //use std::time::Duration;
 use zeroize::Zeroize;
-
 
 #[derive(Default, Debug, Clone)]
 pub struct UnifiSearchInfo {
@@ -27,21 +26,25 @@ pub type UnifiSearchResult = Result<Option<UnifiDeviceBasic>, UnifiAPIError>;
 //     ClientDevice
 // }
 
-fn get_client_and_login<'a>(username: &mut str, password: &mut str, server_url: &'a str, accept_invalid_certs: bool) -> Result<UnifiClient<'a>, UnifiAPIError> {
+fn get_client_and_login<'a>(
+    username: &mut str,
+    password: &mut str,
+    server_url: &'a str,
+    accept_invalid_certs: bool,
+) -> Result<UnifiClient<'a>, UnifiAPIError> {
     let mut client = UnifiClient::new(server_url, accept_invalid_certs)?;
     let login_result = client.login(username, password);
-    
+
     // zeroize the user entered data for security
     password.zeroize();
     username.zeroize();
-    
+
     // return any errors with the login
     login_result?;
     // if we make it here, we should be logged in
     debug_assert!(client.is_logged_in());
     Ok(client)
 }
-
 
 pub fn find_unifi_device(
     search_info: &mut UnifiSearchInfo,
@@ -52,7 +55,7 @@ pub fn find_unifi_device(
         password,
         ref server_url,
         ref mac_to_search,
-        ref accept_invalid_certs
+        ref accept_invalid_certs,
     } = search_info;
 
     let mut client = get_client_and_login(username, password, server_url, *accept_invalid_certs)?;
@@ -90,7 +93,8 @@ pub fn find_unifi_device(
             dbg!(&site);
             dbg!(device);
         }*/
-        let unifi_device_option = site_devices.into_iter()
+        let unifi_device_option = site_devices
+            .into_iter()
             .filter(|device| text_is_valid_mac(device.mac.as_bytes()))
             .find(|device| mac_str == device.mac.to_lowercase().as_str());
 
@@ -100,7 +104,7 @@ pub fn find_unifi_device(
                 let _ = search_thread_channels.percentage_tx.try_send(1f32);
             }
 
-            unifi_device.device_label_option = get_device_label(&unifi_device.device_type, &unifi_device.device_model);
+            unifi_device.create_device_label();
             unifi_device.site = std::mem::take(&mut site.desc);
             return Ok(Some(unifi_device));
         }
