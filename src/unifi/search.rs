@@ -104,8 +104,6 @@ pub fn find_unifi_device(
                 let _ = search_thread_channels.percentage_tx.try_send(1f32);
             }
 
-            // unifi_device.device_label_option =
-            //     get_device_label(&unifi_device.device_type, &unifi_device.device_model);
             unifi_device.create_device_label();
             unifi_device.site = std::mem::take(&mut site.desc);
             return Ok(Some(unifi_device));
