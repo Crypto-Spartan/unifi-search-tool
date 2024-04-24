@@ -200,9 +200,9 @@ impl<'a> PopupWindow<'a> {
                     // add device label to the popup, if it's available
                     // else add the device type & model
                     if let Some(device_label) = device_label_option {
-                        ui.label("SKU / Product:");
+                        ui.label("Model / SKU / Product:");
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
-                            ui.label(device_label); // already a static str
+                            ui.label(format!("{} / {}", device_model.to_uppercase(), device_label));
                         });
                     } else {
                         ui.label("Device Type / Model:");
