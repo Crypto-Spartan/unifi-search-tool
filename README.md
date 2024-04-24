@@ -2,6 +2,8 @@
 
 Does your unifi controller have lots of sites? Do you frequently have equipment returned from those sites and you can't remember where it's adopted in the controller? Enter Unifi Search Tool.
 
+This tool was designed to allow searching a MAC address from a Unifi device across **_all_** of the different sites in a Unifi controller. Currently, the search feature in Unifi only works _within_ a site, there's no way to search across multiple sites.
+
 ## How to Use
 
 ![examplev2](https://raw.githubusercontent.com/Crypto-Spartan/unifi-search-tool/main/screenshots/examplev2.png "examplev2")
