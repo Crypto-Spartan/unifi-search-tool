@@ -20,7 +20,7 @@ fn main() {
     let error = eframe::run_native(
         "Unifi Search Tool",
         native_options,
-        Box::new(|cc| Box::new(GuiApp::new(cc))),
+        Box::new(|cc| Ok(Box::new(GuiApp::new(cc)))),
     );
     if error.is_err() {
         eprintln!("{}", error.unwrap_err());

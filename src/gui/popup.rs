@@ -255,7 +255,7 @@ impl<'a> PopupWindow<'a> {
                         }
 
                         // add gateway mode if true
-                        if gateway_mode {
+                        if gateway_mode == Some(true) {
                             PopupWindow::create_search_result_row(
                                 // custom state.as_str implementation
                                 ui, "Gateway Mode:", "True",

@@ -1,6 +1,6 @@
 [package]
 name = "unifi-search-tool"
-version = "2.2.2"
+version = "2.2.3"
 edition = "2021"
 authors = ["Crypto-Spartan"]
 
@@ -8,8 +8,8 @@ authors = ["Crypto-Spartan"]
 
 [dependencies]
 chrono = { version = "0.4", features=["serde"] }
-egui = { version = "0.27", features = ["extra_debug_asserts"] }
-eframe = "0.27"
+egui = "0.28"
+eframe = "0.28"
 flume = { version = "0.11", default-features = false }
 image = { version = "0.25", default-features = false, features=["ico"] }
 once_cell = "1.19"

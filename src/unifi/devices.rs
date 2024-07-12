@@ -54,7 +54,7 @@ pub(crate) struct UnifiDeviceBasic {
     #[serde(rename(deserialize = "model"))]
     pub(crate) device_model: Box<str>,
     #[serde(rename(deserialize = "in_gateway_mode"))]
-    pub(crate) gateway_mode: bool,
+    pub(crate) gateway_mode: Option<bool>,
     #[serde(rename(deserialize = "name"))]
     pub(crate) name_option: Option<Box<str>>,
     #[serde(skip_deserializing)]
