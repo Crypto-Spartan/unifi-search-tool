@@ -1,5 +1,5 @@
 use super::devices::{
-    ClientDevice, ClientDeviceActive, UnifiDeviceBasic, UnifiDeviceFull, UnifiSite,
+    ClientDevice, ClientDeviceActive, UnifiDeviceBasic, /*UnifiDeviceFull,*/ UnifiSite,
 };
 use reqwest::{
     blocking::Client,
@@ -38,11 +38,11 @@ struct UnifiDevicesBasicResp {
     data: Vec<UnifiDeviceBasic>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
-struct UnifiDevicesFullResp {
-    meta: RespMeta,
-    data: Vec<UnifiDeviceFull>,
-}
+// #[derive(Debug, Clone, Deserialize)]
+// struct UnifiDevicesFullResp {
+//     meta: RespMeta,
+//     data: Vec<UnifiDeviceFull>,
+// }
 
 #[derive(Debug, Clone, Deserialize)]
 struct UnifiClientsAllResp {
@@ -188,30 +188,30 @@ impl<'a> UnifiClient<'a> {
         Ok(site_unifi_devices_basic.data)
     }
 
-    pub(crate) fn get_site_devices_full(
-        &mut self,
-        site_code: &str,
-    ) -> Result<Vec<UnifiDeviceFull>, UnifiAPIError> {
-        let url =
-            format!("{}/api/s/{}/stat/device", self.server_url, site_code).into_boxed_str();
-        let resp = self.api_call(&url)?;
-        let site_unifi_devices_full: UnifiDevicesFullResp = simd_json::serde::from_reader(resp)
-            .map_err(|source| UnifiAPIError::JsonError { url, source })?;
-        Ok(site_unifi_devices_full.data)
-    }
+    // pub(crate) fn get_site_devices_full(
+    //     &mut self,
+    //     site_code: &str,
+    // ) -> Result<Vec<UnifiDeviceFull>, UnifiAPIError> {
+    //     let url =
+    //         format!("{}/api/s/{}/stat/device", self.server_url, site_code).into_boxed_str();
+    //     let resp = self.api_call(&url)?;
+    //     let site_unifi_devices_full: UnifiDevicesFullResp = simd_json::serde::from_reader(resp)
+    //         .map_err(|source| UnifiAPIError::JsonError { url, source })?;
+    //     Ok(site_unifi_devices_full.data)
+    // }
 
-    pub(crate) fn get_site_device_mac(
-        &mut self,
-        site_code: &str,
-        mac: &str,
-    ) -> Result<Vec<UnifiDeviceFull>, UnifiAPIError> {
-        let url = 
-            format!("{}/api/s/{}/stat/device/{}", self.server_url, site_code, mac).into_boxed_str();
-        let resp = self.api_call(&url)?;
-        let site_unifi_device_mac: UnifiDevicesFullResp = simd_json::serde::from_reader(resp)
-            .map_err(|source| UnifiAPIError::JsonError { url, source })?;
-        Ok(site_unifi_device_mac.data)
-    }
+    // pub(crate) fn get_site_device_mac(
+    //     &mut self,
+    //     site_code: &str,
+    //     mac: &str,
+    // ) -> Result<Vec<UnifiDeviceFull>, UnifiAPIError> {
+    //     let url =
+    //         format!("{}/api/s/{}/stat/device/{}", self.server_url, site_code, mac).into_boxed_str();
+    //     let resp = self.api_call(&url)?;
+    //     let site_unifi_device_mac: UnifiDevicesFullResp = simd_json::serde::from_reader(resp)
+    //         .map_err(|source| UnifiAPIError::JsonError { url, source })?;
+    //     Ok(site_unifi_device_mac.data)
+    // }
 
     pub(crate) fn get_site_clients_all(
         &mut self,

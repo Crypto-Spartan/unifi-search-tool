@@ -63,12 +63,12 @@ pub(crate) struct UnifiDeviceBasic {
     pub(crate) site: Box<str>,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize)]
-pub(crate) struct UnifiDeviceFull {
-    #[serde(flatten)]
-    device: UnifiDeviceBasic,
-    port_table: Option<Vec<Port>>,
-}
+// #[derive(Debug, Clone, Eq, PartialEq, Deserialize)]
+// pub(crate) struct UnifiDeviceFull {
+//     #[serde(flatten)]
+//     device: UnifiDeviceBasic,
+//     port_table: Option<Vec<Port>>,
+// }
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize)]
 pub(crate) struct Port {
