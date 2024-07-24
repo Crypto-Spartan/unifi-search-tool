@@ -1,3 +1,5 @@
+_As of 24 July 2024, I have lost access to the large, 100+ site Unifi Controller that I have been using to test this tool. If you have a Unifi controller with a large number of sites (e.g. 50+), and you're willing to provide me with a read-only account on your Unifi Controller, please contact me @ info@cryptospartan.net, tweet at me or DM me on twitter ([@CryptoSpartanTv](https://twitter.com/CryptoSpartanTV)), or open up an issue in this repository. If I don't gain access to another Unifi Controller, I plan to stop development of this tool._
+
 # Unifi Search Tool - Download [Here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/latest)
 
 Does your unifi controller have lots of sites? Do you frequently have equipment returned from those sites and you can't remember where it's adopted in the controller? Enter Unifi Search Tool.
