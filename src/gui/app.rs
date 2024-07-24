@@ -4,7 +4,7 @@ use crate::{
         {ChannelsGuiThread, ChannelsSearchThread},
     },
     mac_address::validation::text_is_valid_mac,
-    unifi::search::{find_unifi_device, UnifiSearchInfo},
+    unifi::search_async::{find_unifi_device, UnifiSearchInfo},
 };
 use std::thread;
 use zeroize::Zeroize;

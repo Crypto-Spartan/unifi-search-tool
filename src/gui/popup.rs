@@ -1,6 +1,6 @@
 use crate::{
     gui::{CancelSignal, ChannelsGuiThread},
-    unifi::{api::UnifiAPIError, devices::UnifiDeviceBasic, search::UnifiSearchResult},
+    unifi::{api_async::UnifiAPIError, devices::UnifiDeviceBasic, search_async::UnifiSearchResult},
 };
 use std::borrow::Cow;
 
@@ -114,6 +114,16 @@ impl<'a> PopupWindow<'a> {
                         },
                         Err(ref unifi_api_error) => {
                             *popup_window_option = match unifi_api_error {
+                                UnifiAPIError::TokioInitError { source } => {
+                                    Some(PopupWindow::Error(GuiError::new_critical(
+                                        "Tokio Init Error",
+                                        format!(
+                                            "Unable to Initialize Tokio Runtime\n{}\n{}",
+                                            unifi_api_error, source
+                                        )
+                                        .into_boxed_str(),
+                                    )))
+                                },
                                 UnifiAPIError::ClientError { source } => {
                                     debug_assert!(source.is_builder());
                                     Some(PopupWindow::Error(GuiError::new_critical(
@@ -124,26 +134,36 @@ impl<'a> PopupWindow<'a> {
                                         )
                                         .into_boxed_str(),
                                     )))
-                                }
+                                },
                                 UnifiAPIError::LoginAuthenticationError { url } => {
                                     Some(PopupWindow::Error(GuiError::new_standard(
                                         "Login Failed",
                                         format!("Unable to login to {}\n{}", url, unifi_api_error)
                                             .into_boxed_str(),
                                     )))
-                                }
+                                },
                                 UnifiAPIError::ReqwestError { source } => {
                                     Some(PopupWindow::Error(GuiError::new_standard(
                                         "Unifi API Error",
                                         format!("{}\n{}", unifi_api_error, source).into_boxed_str(),
                                     )))
-                                }
+                                },
+                                UnifiAPIError::BytesError { source } => {
+                                    Some(PopupWindow::Error(GuiError::new_critical(
+                                        "Reqwest Bytes Error",
+                                        format!(
+                                            "Unable to get bytes from Reqwest Client\n{}\n{}",
+                                            unifi_api_error, source
+                                        )
+                                        .into_boxed_str(),
+                                    )))
+                                },
                                 UnifiAPIError::JsonError { source, .. } => {
                                     Some(PopupWindow::Error(GuiError::new_critical(
                                         "Json Parsing Error",
                                         format!("{}\n{}", unifi_api_error, source).into_boxed_str(),
                                     )))
-                                }
+                                },
                             }
                         }
                     }

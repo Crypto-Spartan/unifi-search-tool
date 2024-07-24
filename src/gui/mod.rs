@@ -1,7 +1,7 @@
 pub(crate) mod app;
 mod popup;
 
-use crate::unifi::search::{UnifiSearchInfo, UnifiSearchResult};
+use crate::unifi::search_async::{UnifiSearchInfo, UnifiSearchResult};
 use flume::{Receiver, Sender};
 
 #[derive(Debug, Eq, PartialEq)]

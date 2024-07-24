@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use crate::{
     gui::{CancelSignal, ChannelsSearchThread},
     mac_address::validation::text_is_valid_mac,
@@ -68,11 +70,11 @@ pub fn find_unifi_device(
     }
 
     let mac_str = mac_to_search.as_str();
-    let mut unifi_sites = client.get_sites()?;
+    let unifi_sites = client.get_sites()?;
     let unifi_sites_len = unifi_sites.len() as f32;
     //dbg!(&unifi_sites);
 
-    for (iter_num, site) in unifi_sites.iter_mut().enumerate() {
+    for (iter_num, site) in unifi_sites.iter().enumerate() {
         // check for cancel signal each iteration
         if let Ok(v) = search_thread_channels.signal_rx.try_recv() {
             if v == CancelSignal {
@@ -105,7 +107,7 @@ pub fn find_unifi_device(
             }
 
             unifi_device.create_device_label();
-            unifi_device.site = std::mem::take(&mut site.desc);
+            unifi_device.site = Box::from(site.desc.deref());
             return Ok(Some(unifi_device));
         }
     }

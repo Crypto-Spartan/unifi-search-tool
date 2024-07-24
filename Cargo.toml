@@ -7,6 +7,7 @@ authors = ["Crypto-Spartan"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bytes = "1.6"
 chrono = { version = "0.4", features=["serde"] }
 egui = "0.28"
 eframe = "0.28"
@@ -15,12 +16,13 @@ image = { version = "0.25", default-features = false, features=["ico"] }
 once_cell = "1.19"
 regex-automata = { version = "0.4", default-features = false, features=["std", "perf", "dfa"] }
 reqwest = {version = "0.12", default-features = false, features = ["rustls-tls-native-roots", "blocking", "cookies", "json", "zstd"]}
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0", features = ["derive", "rc"] }
 serde_json = "1.0"
 serde_repr = "0.1"
 serde_with = "3.7"
 simd-json = "0.13"
 thiserror = "1.0"
+tokio = "1.38"
 zeroize = "1.6"
 
 [target.'cfg(windows)'.build-dependencies]

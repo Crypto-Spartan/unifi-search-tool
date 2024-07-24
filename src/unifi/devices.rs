@@ -2,12 +2,13 @@ use chrono::serde::ts_seconds;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use serde_repr::Deserialize_repr;
+use std::rc::Rc;
 
 #[derive(Default, Debug, Clone, Deserialize)]
 pub(crate) struct UnifiSite {
     #[serde(rename(deserialize = "name"))]
-    pub(crate) code: Box<str>,
-    pub(crate) desc: Box<str>,
+    pub(crate) code: Rc<str>,
+    pub(crate) desc: Rc<str>,
 }
 
 // from https://github.com/Art-of-WiFi/UniFi-API-client/blob/d36a088101e3422e98be1c042afdebaf5f190e8b/src/Client.php#L3379
