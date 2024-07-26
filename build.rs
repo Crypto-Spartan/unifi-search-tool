@@ -75,9 +75,9 @@ fn main() -> io::Result<()> {
             \tdense_dfa\n\
         });\n\
         \n\
-        pub(crate) fn text_is_valid_mac<S: AsRef<[u8]>>(text: S) -> bool {\n\
+        pub(crate) fn text_is_valid_mac<S: AsRef<[u8]>>(bytes: S) -> bool {\n\
             \tMAC_ADDR_REGEX\n\
-                \t\t.try_search_fwd(&Input::new(&text).anchored(Anchored::Yes).earliest(true))\n\
+                \t\t.try_search_fwd(&Input::new(&bytes).anchored(Anchored::Yes).earliest(true))\n\
                 \t\t.map_or(false, |x| x.is_some())\n\
         }";
 
