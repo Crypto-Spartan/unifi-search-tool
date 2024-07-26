@@ -7,6 +7,8 @@ use regex_automata::{
 	Anchored, Input,
 };
 
+pub(crate) const MAC_ADDR_REGEX_STR: &str = "^(?:(?:[0-9A-Fa-f]{2}:){5}|(?:[0-9A-Fa-f]{2}-){5})[0-9A-Fa-f]{2}$";
+
 pub static MAC_ADDR_REGEX: Lazy<dense::DFA<&'static [u32]>> = Lazy::new(|| {
 	static ALIGNED: &AlignAs<[u8], u32> = &AlignAs {
 		_align: [],
