@@ -1,12 +1,13 @@
 use crate::{
     gui::{CancelSignal, ChannelsSearchThread},
-    mac_address::validation::text_is_valid_mac,
+    mac_address::{MacAddress, validation::text_is_valid_mac},
     unifi::{
         api::{UnifiAPIError, UnifiClient},
         devices::UnifiDeviceBasic,
     },
 };
-//use std::time::Duration;
+use multiversion::multiversion;
+use simd_itertools::EqSimd;
 use zeroize::Zeroize;
 
 #[derive(Default, Debug, Clone)]
@@ -14,7 +15,7 @@ pub struct UnifiSearchInfo {
     pub username: String,
     pub password: String,
     pub server_url: String,
-    pub mac_to_search: String,
+    pub mac_to_search: MacAddress,
     pub accept_invalid_certs: bool,
 }
 
@@ -46,6 +47,11 @@ fn get_client_and_login<'a>(
     Ok(client)
 }
 
+#[multiversion(targets = "simd")]
+fn mac_eq_simd(mac_to_search: &[u8; 6], other: &[u8; 6]) -> bool {
+    mac_to_search.iter().eq_simd(&other.iter())
+}
+
 pub fn find_unifi_device(
     search_info: &mut UnifiSearchInfo,
     search_thread_channels: &mut ChannelsSearchThread,
@@ -67,10 +73,9 @@ pub fn find_unifi_device(
         }
     }
 
-    let mac_str = mac_to_search.as_str();
+    let mac_to_search_bytes = mac_to_search.as_bytes();
     let mut unifi_sites = client.get_sites()?;
     let unifi_sites_len = unifi_sites.len() as f32;
-    //dbg!(&unifi_sites);
 
     for (iter_num, site) in unifi_sites.iter_mut().enumerate() {
         // check for cancel signal each iteration
@@ -89,14 +94,11 @@ pub fn find_unifi_device(
 
         // get devices from a specific site
         let site_devices = client.get_site_devices_basic(&site.code)?;
-        /*if let Some(device) = site_devices.iter().find(|device| !device.adopted) {
-            dbg!(&site);
-            dbg!(device);
-        }*/
         let unifi_device_option = site_devices
             .into_iter()
-            .filter(|device| text_is_valid_mac(device.mac.as_bytes()))
-            .find(|device| mac_str == device.mac.to_lowercase().as_str());
+            .find(|device| {
+                mac_eq_simd(mac_to_search_bytes, device.mac.as_bytes())
+            });
 
         if let Some(mut unifi_device) = unifi_device_option {
             {

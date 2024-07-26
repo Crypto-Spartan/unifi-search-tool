@@ -1,67 +1,84 @@
-pub mod validation;
+use constcat::concat;
+use serde::{de::{self, Unexpected}, Deserialize};
+use thiserror::Error;
 
-/*pub(crate) struct MACAddress{
+pub mod validation;
+use validation::MAC_ADDR_REGEX_STR;
+
+#[derive(Clone, Debug, Default)]//, PartialEq, Eq)]
+pub(crate) struct MacAddress{
     bytes: [u8; 6]
 }
 
-impl MACAddress {
-    pub fn new(bytes: [u8; 6]) -> MACAddress {
-        MACAddress{ bytes }
+impl MacAddress {
+    pub fn new(bytes: [u8; 6]) -> MacAddress {
+        MacAddress{ bytes }
     }
 
-    pub fn bytes(self) -> [u8; 6] {
+    #[inline]
+    pub fn as_bytes(&self) -> &[u8; 6] {
+        &self.bytes
+    }
+
+    #[inline]
+    pub fn into_bytes(self) -> [u8; 6] {
         self.bytes
     }
 }
 
-impl From<[u8; 6]> for MACAddress {
+impl From<[u8; 6]> for MacAddress {
+    #[inline]
     fn from(v: [u8; 6]) -> Self {
-        MACAddress::new(v)
+        MacAddress::new(v)
     }
 }
 
-impl std::str::FromStr for MACAddress {
-    type Err = MACParseError;
+#[derive(Error, Debug)]
+pub(crate) enum MacParseError{
+    #[error("Invalid MAC Address: {invalid_mac:?}")]
+    InvalidMac{ invalid_mac: Box<str> },
+}
+
+impl std::str::FromStr for MacAddress {
+    type Err = MacParseError;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
+        if !validation::text_is_valid_mac(input.as_bytes()) {
+            return Err(MacParseError::InvalidMac { invalid_mac: Box::from(input) });
+        }
+
         let mut array = [0u8; 6];
+        let mac_bytes_iter = input
+            .split([':', '-'])
+            .map(|b_str| {
+                u8::from_str_radix(b_str, 16).expect("mac validation failed")
+            });
 
-        let mut nth = 0;
-        for byte in input.split(|c| c == ':' || c == '-') {
-            if nth == 6 {
-                return Err(MACParseError::InvalidLength);
-            }
-
-            array[nth] = u8::from_str_radix(byte, 16).map_err(|_| MACParseError::InvalidDigit)?;
-
-            nth += 1;
+        for (idx, b) in array.iter_mut().zip(mac_bytes_iter) {
+            *idx = b
         }
 
-        if nth != 6 {
-            return Err(MACParseError::InvalidLength);
-        }
-
-        Ok(MACAddress::new(array))
+        Ok(MacAddress::new(array))
     }
 }
 
-impl std::convert::TryFrom<&'_ str> for MACAddress {
-    type Error = MACParseError;
+impl std::convert::TryFrom<&'_ str> for MacAddress {
+    type Error = MacParseError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         value.parse()
     }
 }
 
-impl std::convert::TryFrom<std::borrow::Cow<'_, str>> for MACAddress {
-    type Error = MACParseError;
+impl std::convert::TryFrom<std::borrow::Cow<'_, str>> for MacAddress {
+    type Error = MacParseError;
 
     fn try_from(value: std::borrow::Cow<'_, str>) -> Result<Self, Self::Error> {
         value.parse()
     }
 }
 
-impl std::fmt::Display for MACAddress {
+impl std::fmt::Display for MacAddress {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let _ = write!(
             f,
@@ -76,9 +93,9 @@ impl std::fmt::Display for MACAddress {
 
         Ok(())
     }
-}*/
+}
 
-// impl serde::Serialize for MACAddress {
+// impl serde::Serialize for MacAddress {
 //     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
 //     where
 //         S: serde::Serializer,
@@ -86,3 +103,17 @@ impl std::fmt::Display for MACAddress {
 //         serializer.collect_str(self)
 //     }
 // }
+
+impl<'de> Deserialize<'de> for MacAddress {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: de::Deserializer<'de>,
+    {
+        let mac_str: &str = de::Deserialize::deserialize(deserializer)?;
+        MacAddress::try_from(mac_str).map_err(|_| {
+            let unexpected = Unexpected::Str(mac_str);
+            const EXPECTED: &str = concat!("MAC Address in string format matching regex: ", MAC_ADDR_REGEX_STR);
+            de::Error::invalid_value(unexpected, &EXPECTED)
+        })
+    }
+}

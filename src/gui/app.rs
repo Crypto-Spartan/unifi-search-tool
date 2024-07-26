@@ -3,7 +3,7 @@ use crate::{
         popup::{GuiError, PopupWindow, WindowMeta},
         {ChannelsGuiThread, ChannelsSearchThread},
     },
-    mac_address::validation::text_is_valid_mac,
+    mac_address::{MacAddress, validation::text_is_valid_mac},
     unifi::search::{find_unifi_device, UnifiSearchInfo},
 };
 use std::thread;
@@ -283,8 +283,9 @@ impl<'a> GuiApp<'a> {
                                 p
                             }
                         };
-                        let server_url = server_url_input.to_string();
-                        let mac_to_search = mac_addr_input.replace("-", ":").to_lowercase();
+                        let server_url = server_url_input.strip_suffix('/').unwrap_or(server_url_input).to_string();
+                        let mac_to_search = MacAddress::try_from(mac_addr_input.as_ref())
+                            .expect("Mac Address validation failed"); // SAFETY: this should never error due to the check above
                         let accept_invalid_certs = *invalid_certs_checked;
 
                         search_info_tx.send(

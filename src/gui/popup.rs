@@ -42,7 +42,7 @@ impl<'a> GuiError<'a> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub(super) enum PopupWindow<'a> {
     SearchProgress(f32),
     SearchResult(UnifiDeviceBasic),
@@ -235,7 +235,7 @@ impl<'a> PopupWindow<'a> {
 
                         // add the MAC address of the device found
                         PopupWindow::create_search_result_row(
-                            ui, "MAC Address:", mac.as_ref(),
+                            ui, "MAC Address:", format!("{mac}"),
                         );
 
                         // add device status; ie if the device is connected, offline, or unknown

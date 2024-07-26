@@ -2,6 +2,7 @@ use chrono::serde::ts_seconds;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use serde_repr::Deserialize_repr;
+use crate::mac_address::MacAddress;
 
 #[derive(Default, Debug, Clone, Deserialize)]
 pub(crate) struct UnifiSite {
@@ -44,9 +45,9 @@ impl DeviceState {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub(crate) struct UnifiDeviceBasic {
-    pub(crate) mac: Box<str>,
+    pub(crate) mac: MacAddress,
     pub(crate) state: DeviceState,
     pub(crate) adopted: bool,
     #[serde(rename(deserialize = "type"))]
