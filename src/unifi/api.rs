@@ -213,26 +213,26 @@ impl<'a> UnifiClient<'a> {
     //     Ok(site_unifi_device_mac.data)
     // }
 
-    pub(crate) fn get_site_clients_all(
-        &mut self,
-        site_code: &str,
-    ) -> Result<Vec<ClientDevice>, UnifiAPIError> {
-        let url = format!("{}/api/s/{}/rest/user", self.server_url, site_code).into_boxed_str();
-        let resp = self.api_call(&url)?;
-        let site_client_devices_all: UnifiClientsAllResp = simd_json::serde::from_reader(resp)
-            .map_err(|source| UnifiAPIError::JsonError { url, source })?;
-        Ok(site_client_devices_all.data)
-    }
+    // pub(crate) fn get_site_clients_all(
+    //     &mut self,
+    //     site_code: &str,
+    // ) -> Result<Vec<ClientDevice>, UnifiAPIError> {
+    //     let url = format!("{}/api/s/{}/rest/user", self.server_url, site_code).into_boxed_str();
+    //     let resp = self.api_call(&url)?;
+    //     let site_client_devices_all: UnifiClientsAllResp = simd_json::serde::from_reader(resp)
+    //         .map_err(|source| UnifiAPIError::JsonError { url, source })?;
+    //     Ok(site_client_devices_all.data)
+    // }
 
-    pub(crate) fn get_site_clients_active(
-        &mut self,
-        site_code: &str,
-    ) -> Result<Vec<ClientDeviceActive>, UnifiAPIError> {
-        let url = format!("{}/api/s/{}/stat/sta", self.server_url, site_code).into_boxed_str();
-        let resp = self.api_call(&url)?;
-        let site_client_devices_active: UnifiClientsActiveResp =
-            simd_json::serde::from_reader(resp)
-                .map_err(|source| UnifiAPIError::JsonError { url, source })?;
-        Ok(site_client_devices_active.data)
-    }
+    // pub(crate) fn get_site_clients_active(
+    //     &mut self,
+    //     site_code: &str,
+    // ) -> Result<Vec<ClientDeviceActive>, UnifiAPIError> {
+    //     let url = format!("{}/api/s/{}/stat/sta", self.server_url, site_code).into_boxed_str();
+    //     let resp = self.api_call(&url)?;
+    //     let site_client_devices_active: UnifiClientsActiveResp =
+    //         simd_json::serde::from_reader(resp)
+    //             .map_err(|source| UnifiAPIError::JsonError { url, source })?;
+    //     Ok(site_client_devices_active.data)
+    // }
 }
