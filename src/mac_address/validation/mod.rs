@@ -24,5 +24,5 @@ pub static MAC_ADDR_REGEX: Lazy<dense::DFA<&'static [u32]>> = Lazy::new(|| {
 pub(crate) fn text_is_valid_mac<S: AsRef<[u8]>>(bytes: S) -> bool {
 	MAC_ADDR_REGEX
 		.try_search_fwd(&Input::new(&bytes).anchored(Anchored::Yes).earliest(true))
-		.map_or(false, |x| x.is_some())
+		.is_ok_and(|x| x.is_some())
 }
