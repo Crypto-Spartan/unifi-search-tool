@@ -1,4 +1,4 @@
-_As of 24 July 2024, I have lost access to the large, 100+ site Unifi Controller that I have been using to test this tool. If you have a Unifi controller with a large number of sites (e.g. 50+), and you're willing to provide me with a read-only account on your Unifi Controller, please contact me @ info@cryptospartan.net, tweet at me or DM me on twitter ([@CryptoSpartanTv](https://twitter.com/CryptoSpartanTV)), or open up an issue in this repository. If I don't gain access to another Unifi Controller, I plan to stop development of this tool._
+_As of 24 July 2024, I have lost access to the large, 100+ site Unifi Controller that I have been using to test this tool. If you have a Unifi controller with a large number of sites (e.g. 50+), and you're willing to provide me with a read-only account on your Unifi Controller, please contact me @ info@cryptospartan.net, messsage me on Discord (username is cryptospartan), tweet at me or DM me on twitter ([@CryptoSpartanTv](https://twitter.com/CryptoSpartanTV)), or open up an issue in this repository. If I don't gain access to another Unifi Controller, I plan to stop development of this tool._
 
 # Unifi Search Tool - Download [Here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/latest)
 
@@ -24,7 +24,10 @@ The tool will tell you which site in the controller that the device was adopted 
 
 ## Build From Source
 
-![Minimum Rust: 1.65](https://img.shields.io/badge/Minimum%20Rust%20Version-1.65-brightgreen.svg)
+> [!IMPORTANT]
+> Rust **nightly** compiler is required
+
+![Minimum Rust Version](https://img.shields.io/badge/Minimum%20Rust%20Version-1.81.0--nightly_(2024--07--01)-brightgreen.svg)
 
 1. Download the Zip of the source files and extract it
 
@@ -61,11 +64,13 @@ $ cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_
 
 ### Pre-populate username, password, & URL fields
 
-**\*\*\* This feature is not functional in the 2.X.X release. If you require the pre-populated fields, you can download v1.4.1 [here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/tag/1.4.1) \*\*\***
+> ![!NOTE]
+> This feature is not functional in the 2.X.X release. If you require the pre-populated fields, you can download v1.4.1 [here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/tag/1.4.1)
 
 These instructions are for those that would like to add in their own defaults so that they don't need to re-enter their credentials or controller URL each time the program is opened. (This will only work for the installed version unless you decide to build the portable version from source.)
 
-#### NOTE: If you choose to do this and credentials are stolen, I am not responsible. This is at your own risk.
+> [!CAUTION]
+> If you choose to do this and credentials are stolen, I am not responsible. This is at your own risk.
 
 1. Find `config.txt` within the install folder. (Default is C:\Program Files (x86)\Unifi Search Tool)
 
