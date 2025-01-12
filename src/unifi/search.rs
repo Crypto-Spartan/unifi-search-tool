@@ -1,6 +1,6 @@
 use crate::{
     gui::{CancelSignal, ChannelsSearchThread},
-    mac_address::{MacAddress, validation::text_is_valid_mac},
+    mac_address::MacAddress,
     unifi::{
         api::{UnifiAPIError, UnifiClient},
         devices::UnifiDeviceBasic,
