@@ -12,7 +12,7 @@ const MAC_ADDR_REGEX_STR: &str = "^(?:(?:[0-9A-Fa-f]{2}:){5}|(?:[0-9A-Fa-f]{2}-)
 fn main() -> io::Result<()> {
     #[cfg(windows)]
     {
-        embed_resource::compile("icon.rc", embed_resource::NONE);
+        embed_resource::compile("icon.rc", embed_resource::NONE).manifest_required().unwrap();
     }
 
     let mac_addr_validation_dir = "src/mac_address/validation";
