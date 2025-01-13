@@ -45,7 +45,7 @@ impl DeviceState {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub(crate) struct UnifiDeviceBasic {
     pub(crate) mac: MacAddress,
     pub(crate) state: DeviceState,

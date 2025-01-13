@@ -67,7 +67,12 @@ impl<'a> eframe::App for GuiApp<'a> {
                 popup_window_option,
                 &mut gui_channels.search_info_tx,
             );
-            let main_window_size: egui::Vec2 = ui.available_size();
+
+            let main_window_size: egui::Pos2 = {
+                let window_coords = ctx.input(|i| i.viewport().inner_rect).unwrap();
+                let next_widget_pos = ui.next_widget_position();
+                egui::pos2(window_coords.width(), next_widget_pos.y)
+            };
             GuiApp::handle_popup_window(
                 ctx,
                 popup_window_option,
@@ -160,7 +165,6 @@ impl<'a> GuiApp<'a> {
                         ui.selectable_value(font_size_enum, FontSize::ExtraLarge, "Extra Large");
                     });
             });
-            ui.add_space(150.);
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 ui.hyperlink_to(
                     "Source Code",
@@ -224,12 +228,14 @@ impl<'a> GuiApp<'a> {
         ui.checkbox(invalid_certs_checked, "Accept Invalid HTTPS Certificate");
 
         // add "Search Unifi" button
-        GuiApp::create_search_button(ui, gui_input_fields, popup_window_option, search_info_tx);
+        ui.vertical_centered(|ui| {
+            if ui.button("Search Unifi").clicked() {
+                GuiApp::handle_button_click(gui_input_fields, popup_window_option, search_info_tx);
+            }
+        });
     }
 
-    // add "Search Unifi" button
-    fn create_search_button(
-        ui: &mut egui::Ui,
+    fn handle_button_click(
         gui_input_fields: &mut GuiInputFields,
         popup_window_option: &mut Option<PopupWindow>,
         search_info_tx: &mut flume::Sender<UnifiSearchInfo>,
@@ -244,110 +250,107 @@ impl<'a> GuiApp<'a> {
             ref remember_pass_checked,
         } = gui_input_fields;
 
-        ui.horizontal(|ui| {
-            ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::TopDown), |ui| {
-                if ui.button("Search Unifi").clicked() {
+        // if any fields are empty, display error
+        if username_input.is_empty()
+        || password_input.is_empty()
+        || server_url_input.is_empty()
+        || mac_addr_input.is_empty() {
+            *popup_window_option = Some(PopupWindow::Error(
+                GuiError::new_standard(
+                    "Required Fields",
+                    Box::from("Username, Password, Server URL, & MAC Address are all required fields.")
+                )
+            ));
+        // if the mac address isn't in a valid format, display error
+        } else if !text_is_valid_mac(mac_addr_input.as_bytes()) {
+            *popup_window_option = Some(PopupWindow::Error(
+                GuiError::new_standard(
+                    "Invalid MAC Address",
+                    Box::from("MAC Address must be formatted like XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX with hexadecimal characters only.")
+                )
+            ));
+        // other checks passed, run the search
+        } else {
+            *popup_window_option = Some(PopupWindow::SearchProgress(0.));
 
-                    // if any fields are empty, display error
-                    if username_input.is_empty()
-                    || password_input.is_empty()
-                    || server_url_input.is_empty()
-                    || mac_addr_input.is_empty() {
-                        *popup_window_option = Some(PopupWindow::Error(
-                            GuiError::new_standard(
-                                "Required Fields",
-                                Box::from("Username, Password, Server URL, & MAC Address are all required fields.")
-                            )
-                        ));
-                    // if the mac address isn't in a valid format, display error
-                    } else if !text_is_valid_mac(mac_addr_input.as_bytes()) {
-                        *popup_window_option = Some(PopupWindow::Error(
-                            GuiError::new_standard(
-                                "Invalid MAC Address",
-                                Box::from("MAC Address must be formatted like XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX with hexadecimal characters only.")
-                            )
-                        ));
-                    // other checks passed, run the search
-                    } else {
-                        *popup_window_option = Some(PopupWindow::SearchProgress(0.));
-
-                        let username = username_input.to_string();
-                        // don't zeroize the password if remember password checkbox is checked
-                        // password is always zeroized on the search thread immediately after authentication
-                        let password = {
-                            if *remember_pass_checked {
-                                password_input.to_string()
-                            } else {
-                                let p = std::mem::take(password_input);
-                                password_input.zeroize();
-                                p
-                            }
-                        };
-                        let server_url = server_url_input.strip_suffix('/').unwrap_or(server_url_input).to_string();
-                        let mac_to_search = MacAddress::try_from(mac_addr_input.as_ref())
-                            .expect("Mac Address validation failed"); // SAFETY: this should never error due to the check above
-                        let accept_invalid_certs = *invalid_certs_checked;
-
-                        search_info_tx.send(
-                            UnifiSearchInfo {
-                                username,
-                                password,
-                                server_url,
-                                mac_to_search,
-                                accept_invalid_certs
-                            }
-                        ).expect("sending struct UnifiSearchInfo through channel search_info_tx should be successful");
-                    }
+            let username = username_input.to_string();
+            // don't zeroize the password if remember password checkbox is checked
+            // password is always zeroized on the search thread immediately after authentication
+            let password = {
+                if *remember_pass_checked {
+                    password_input.to_string()
+                } else {
+                    let p = std::mem::take(password_input);
+                    password_input.zeroize();
+                    p
                 }
-            });
-        });
+            };
+            let server_url = server_url_input.strip_suffix('/').unwrap_or(server_url_input).to_string();
+            let mac_to_search = MacAddress::try_from(mac_addr_input.as_ref())
+                .expect("Mac Address validation failed"); // SAFETY: this should never error due to the check above
+            let accept_invalid_certs = *invalid_certs_checked;
+
+            search_info_tx.send(
+                UnifiSearchInfo {
+                    username,
+                    password,
+                    server_url,
+                    mac_to_search,
+                    accept_invalid_certs
+                }
+            ).expect("sending struct UnifiSearchInfo through channel search_info_tx should be successful");
+        }
     }
 
     fn handle_popup_window(
         ctx: &egui::Context,
         popup_window_option: &mut Option<PopupWindow>,
-        main_window_size: egui::Vec2,
+        main_window_size: egui::Pos2,
         mac_addr_input: &str,
         gui_channels: &mut ChannelsGuiThread,
     ) {
-        if let Some(popup_window) = popup_window_option.clone() {
-            let popup_metadata = {
-                let width = main_window_size.x * 0.7;
-                WindowMeta {
-                    ctx,
-                    width,
-                    default_x_pos: (main_window_size.x / 2.) - (width / 2.),
-                    default_y_pos: main_window_size.y * 0.15,
-                }
-            };
+        if popup_window_option.is_none() {
+            return
+        }
+        let popup_window = popup_window_option.clone().unwrap();
+        let popup_metadata = {
+            let width = main_window_size.x * 0.7;
+            let default_pos = egui::pos2(main_window_size.x / 2., main_window_size.y / 2.);
+            WindowMeta {
+                ctx,
+                width,
+                default_pos,
+            }
+        };
+        // dbg!(&main_window_size);
+        // dbg!(&popup_metadata);
 
-            match popup_window {
-                PopupWindow::SearchProgress(percentage) => {
-                    PopupWindow::create_search_progress(
-                        popup_metadata,
-                        popup_window_option,
-                        percentage,
-                        mac_addr_input,
-                        gui_channels,
-                    );
-                }
-                PopupWindow::SearchResult(unifi_device) => {
-                    PopupWindow::create_search_result(
-                        popup_metadata,
-                        popup_window_option,
-                        unifi_device,
-                    );
-                }
-                PopupWindow::Error(error) => {
-                    PopupWindow::create_error(popup_metadata, popup_window_option, error);
-                }
-                PopupWindow::DisplayCancel => {
-                    PopupWindow::create_cancel(
-                        popup_metadata,
-                        popup_window_option,
-                        &mut gui_channels.device_rx,
-                    );
-                }
+        match popup_window {
+            PopupWindow::SearchProgress(percentage) => {
+                PopupWindow::create_search_progress(
+                    popup_metadata,
+                    popup_window_option,
+                    percentage,
+                    mac_addr_input,
+                    gui_channels,
+                );
+            }
+            PopupWindow::SearchResult(unifi_device) => {
+                PopupWindow::create_search_result(
+                    popup_metadata,
+                    popup_window_option,
+                    unifi_device,
+                );
+            }
+            PopupWindow::Error(error) => {
+                PopupWindow::create_error(popup_metadata, popup_window_option, error);
+            }
+            PopupWindow::DisplayCancel => {
+                PopupWindow::create_cancel(
+                    popup_metadata,
+                    popup_window_option,
+                    &mut gui_channels.device_rx,
+                );
             }
         }
     }

@@ -5,7 +5,7 @@ use thiserror::Error;
 pub mod validation;
 use validation::MAC_ADDR_REGEX_STR;
 
-#[derive(Clone, Debug, Default)]//, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub(crate) struct MacAddress{
     bytes: [u8; 6]
 }
