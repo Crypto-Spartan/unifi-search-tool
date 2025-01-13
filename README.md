@@ -64,7 +64,7 @@ $ cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_
 
 ### Pre-populate username, password, & URL fields
 
-> ![!NOTE]
+> [!NOTE]
 > This feature is not functional in the 2.X.X release. If you require the pre-populated fields, you can download v1.4.1 [here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/tag/1.4.1)
 
 These instructions are for those that would like to add in their own defaults so that they don't need to re-enter their credentials or controller URL each time the program is opened. (This will only work for the installed version unless you decide to build the portable version from source.)
