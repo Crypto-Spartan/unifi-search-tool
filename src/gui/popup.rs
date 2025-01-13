@@ -19,7 +19,7 @@ pub(super) struct GuiError<'a> {
     err_lvl: GuiErrorLevel,
 }
 
-impl<'a> GuiError<'a> {
+impl GuiError<'_> {
     pub(super) fn new_info(title: &'static str, desc: Box<str>) -> Self {
         Self {
             title: Cow::Borrowed(title),

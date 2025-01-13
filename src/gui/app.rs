@@ -34,7 +34,7 @@ pub(crate) struct GuiApp<'a> {
     popup_window_option: Option<PopupWindow<'a>>,
 }
 
-impl<'a> eframe::App for GuiApp<'a> {
+impl eframe::App for GuiApp<'_> {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -89,7 +89,7 @@ impl<'a> eframe::App for GuiApp<'a> {
     }
 }
 
-impl<'a> Default for GuiApp<'a> {
+impl Default for GuiApp<'_> {
     fn default() -> Self {
         let font_size_enum = FontSize::Medium;
 
@@ -139,7 +139,7 @@ impl<'a> Default for GuiApp<'a> {
     }
 }
 
-impl<'a> GuiApp<'a> {
+impl GuiApp<'_> {
     /// Called once before the first frame.
     pub(crate) fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // This is also where you can customized the look at feel of egui using
