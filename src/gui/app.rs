@@ -149,9 +149,9 @@ impl<'a> GuiApp<'a> {
         // create top menu bar with light/dark buttons & hyperlinks
         egui::menu::bar(ui, |ui| {
             ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-                egui::widgets::global_dark_light_mode_buttons(ui);
+                egui::widgets::global_theme_preference_switch(ui);
                 ui.label(" | ");
-                egui::ComboBox::from_id_source("ComboBox #1")
+                egui::ComboBox::from_id_salt("ComboBox #1")
                     .selected_text("Gui Scaling")
                     .show_ui(ui, |ui| {
                         ui.selectable_value(font_size_enum, FontSize::Small, "Small");
