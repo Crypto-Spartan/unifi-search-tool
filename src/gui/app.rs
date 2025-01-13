@@ -322,8 +322,6 @@ impl GuiApp<'_> {
                 default_pos,
             }
         };
-        // dbg!(&main_window_size);
-        // dbg!(&popup_metadata);
 
         match popup_window {
             PopupWindow::SearchProgress(percentage) => {
