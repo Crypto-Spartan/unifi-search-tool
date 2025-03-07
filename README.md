@@ -79,3 +79,13 @@ These instructions are for those that would like to add in their own defaults so
 3. Save config.txt
 
 Next time Unifi Search Tool is launched, it will have new pre-populated fields.
+
+## Star History
+
+<a href="https://star-history.com/#crypto-spartan/unifi-search-tool&Date">
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=crypto-spartan/unifi-search-tool&type=Date&theme=dark" />
+        <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=crypto-spartan/unifi-search-tool&type=Date" />
+        <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=crypto-spartan/unifi-search-tool&type=Date" />
+    </picture>
+</a>
