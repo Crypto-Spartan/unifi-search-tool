@@ -60,26 +60,6 @@ $ cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_
 
 - see <https://github.com/johnthagen/min-sized-rust> for more details
 
-## **Advanced**
-
-### Pre-populate username, password, & URL fields
-
-> [!NOTE]
-> This feature is not functional in the 2.X.X release. If you require the pre-populated fields, you can download v1.4.1 [here](https://github.com/Crypto-Spartan/unifi-search-tool/releases/tag/1.4.1)
-
-These instructions are for those that would like to add in their own defaults so that they don't need to re-enter their credentials or controller URL each time the program is opened. (This will only work for the installed version unless you decide to build the portable version from source.)
-
-> [!CAUTION]
-> If you choose to do this and credentials are stolen, I am not responsible. This is at your own risk.
-
-1. Find `config.txt` within the install folder. (Default is C:\Program Files (x86)\Unifi Search Tool)
-
-2. Add in your own values to the right of the `=` symbol
-
-3. Save config.txt
-
-Next time Unifi Search Tool is launched, it will have new pre-populated fields.
-
 ## Star History
 
 <a href="https://star-history.com/#crypto-spartan/unifi-search-tool&Date">
