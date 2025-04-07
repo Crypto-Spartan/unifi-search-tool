@@ -5,30 +5,38 @@ use thiserror::Error;
 pub mod validation;
 use validation::MAC_ADDR_REGEX_STR;
 
-#[derive(Clone, Debug, Default, PartialEq)]
-pub(crate) struct MacAddress{
-    bytes: [u8; 6]
-}
+#[derive(Copy, Clone, Debug, Default, PartialEq)]
+pub(crate) struct MacAddress(u64);
 
 impl MacAddress {
-    pub fn new(bytes: [u8; 6]) -> MacAddress {
-        MacAddress{ bytes }
+    pub fn new(n: u64) -> MacAddress {
+        assert!(n <= 0xFFFFFF_FFFFFF, "MAC Address value is larger than what fits in 6 bytes");
+        MacAddress(n)
     }
 
     #[inline]
-    pub fn as_bytes(&self) -> &[u8; 6] {
-        &self.bytes
+    pub fn as_bytes(&self) -> [u8; 8] {
+        let b = self.0.to_be_bytes();
+        assert!(b[0] == 0 && b[1] == 0, "MAC Address value is larger than what fits in 6 bytes");
+        b
     }
 
-    #[inline]
-    pub fn into_bytes(self) -> [u8; 6] {
-        self.bytes
-    }
+    // #[inline]
+    // pub fn into_bytes(self) -> [u8; 8] {
+    //     let b = self.0.to_be_bytes();
+    //     assert!(b[0] == 0 && b[1] == 0, "MAC Address value is larger than what fits in 6 bytes");
+    //     b
+    // }
+
+    // #[inline]
+    // pub fn as_u64(self) -> u64 {
+    //     self.0
+    // }
 }
 
-impl From<[u8; 6]> for MacAddress {
+impl From<u64> for MacAddress {
     #[inline]
-    fn from(v: [u8; 6]) -> Self {
+    fn from(v: u64) -> Self {
         MacAddress::new(v)
     }
 }
@@ -46,19 +54,10 @@ impl std::str::FromStr for MacAddress {
         if !validation::text_is_valid_mac(input.as_bytes()) {
             return Err(MacParseError::InvalidMac { invalid_mac: Box::from(input) });
         }
+        let mac_hex = input.replace([':', '-'], "");
+        let num_u64 = u64::from_str_radix(&mac_hex, 16).expect("mac validation failed");
 
-        let mut array = [0u8; 6];
-        let mac_bytes_iter = input
-            .split([':', '-'])
-            .map(|b_str| {
-                u8::from_str_radix(b_str, 16).expect("mac validation failed")
-            });
-
-        for (idx, b) in array.iter_mut().zip(mac_bytes_iter) {
-            *idx = b
-        }
-
-        Ok(MacAddress::new(array))
+        Ok(MacAddress::new(num_u64))
     }
 }
 
@@ -80,15 +79,16 @@ impl std::convert::TryFrom<std::borrow::Cow<'_, str>> for MacAddress {
 
 impl std::fmt::Display for MacAddress {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let bytes = self.as_bytes();
         let _ = write!(
             f,
             "{:<02X}:{:<02X}:{:<02X}:{:<02X}:{:<02X}:{:<02X}",
-            self.bytes[0],
-            self.bytes[1],
-            self.bytes[2],
-            self.bytes[3],
-            self.bytes[4],
-            self.bytes[5]
+            bytes[2],
+            bytes[3],
+            bytes[4],
+            bytes[5],
+            bytes[6],
+            bytes[7]
         );
 
         Ok(())

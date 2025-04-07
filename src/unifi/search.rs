@@ -7,7 +7,6 @@ use crate::{
     },
 };
 use multiversion::multiversion;
-use simd_itertools::EqSimd;
 use zeroize::Zeroize;
 
 #[derive(Default, Debug, Clone)]
@@ -48,8 +47,10 @@ fn get_client_and_login<'a>(
 }
 
 #[multiversion(targets = "simd")]
-fn mac_eq_simd(mac_to_search: &[u8; 6], other: &[u8; 6]) -> bool {
-    mac_to_search.iter().eq_simd(&other.iter())
+fn find_device_simd(site_devices: Vec<UnifiDeviceBasic>, mac_to_search: MacAddress) -> Option<UnifiDeviceBasic> {
+    site_devices.into_iter().find(|device| {
+        device.mac == mac_to_search
+    })
 }
 
 pub fn find_unifi_device(
@@ -73,7 +74,7 @@ pub fn find_unifi_device(
         }
     }
 
-    let mac_to_search_bytes = mac_to_search.as_bytes();
+    let mac_to_search = *mac_to_search;
     let mut unifi_sites = client.get_sites()?;
     let unifi_sites_len = unifi_sites.len() as f32;
 
@@ -94,11 +95,7 @@ pub fn find_unifi_device(
 
         // get devices from a specific site
         let site_devices = client.get_site_devices_basic(&site.code)?;
-        let unifi_device_option = site_devices
-            .into_iter()
-            .find(|device| {
-                mac_eq_simd(mac_to_search_bytes, device.mac.as_bytes())
-            });
+        let unifi_device_option = find_device_simd(site_devices, mac_to_search);
 
         if let Some(mut unifi_device) = unifi_device_option {
             {
