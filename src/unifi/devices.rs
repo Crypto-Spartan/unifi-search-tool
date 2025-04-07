@@ -115,7 +115,7 @@ pub(crate) struct ClientDeviceActive {
 
 
 impl UnifiDeviceBasic {
-    
+
     #[inline]
     pub(crate) fn create_device_label(&mut self) {
         self.device_label_option = match &*self.device_type {
