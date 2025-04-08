@@ -156,7 +156,7 @@ impl GuiApp<'_> {
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
                 egui::widgets::global_theme_preference_switch(ui);
                 ui.label(" | ");
-                egui::ComboBox::from_id_salt("ComboBox #1")
+                egui::ComboBox::from_id_salt("Menu Bar ComboBox - Gui Scaling")
                     .selected_text("Gui Scaling")
                     .show_ui(ui, |ui| {
                         ui.selectable_value(font_size_enum, FontSize::Small, "Small");
@@ -204,7 +204,7 @@ impl GuiApp<'_> {
         });
 
         // use of grid for the input fields for formatting/spacing
-        egui::Grid::new("some_unique_id #1")
+        egui::Grid::new("Main Window Grid")
             .num_columns(2)
             .show(ui, |ui| {
                 ui.label("Username");
