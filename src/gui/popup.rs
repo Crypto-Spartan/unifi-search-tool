@@ -283,7 +283,8 @@ impl<'a> PopupModal<'a> {
                     ui.horizontal(|ui| {
                         ui.spacing_mut().item_spacing.x = 0.0;
                         ui.label("Please report this bug to the ");
-                        ui.hyperlink_to("Github Issues Page", "https://github.com/Crypto-Spartan/unifi-search-tool/issues");
+                        let github_issues_url: &'static str = "https://github.com/Crypto-Spartan/unifi-search-tool/issues";
+                        ui.hyperlink_to("Github Issues Page", github_issues_url).on_hover_text(github_issues_url);
                         ui.label(" and include as much information as possible.")
                     });
                 } else {

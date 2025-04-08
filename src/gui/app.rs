@@ -166,15 +166,19 @@ impl GuiApp<'_> {
                     });
             });
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                let source_code_url: &'static str = "https://github.com/Crypto-Spartan/unifi-search-tool";
                 ui.hyperlink_to(
                     "Source Code",
-                    "https://github.com/Crypto-Spartan/unifi-search-tool",
-                );
+                    source_code_url,
+                ).on_hover_text(source_code_url);
+
                 ui.label(" | ");
+
+                let license_url: &'static str = "https://github.com/Crypto-Spartan/unifi-search-tool/blob/master/LICENSE";
                 ui.hyperlink_to(
                     "License",
-                    "https://github.com/Crypto-Spartan/unifi-search-tool/blob/master/LICENSE",
-                );
+                    license_url,
+                ).on_hover_text(license_url);
             });
         });
     }
@@ -211,20 +215,31 @@ impl GuiApp<'_> {
                 ui.add(
                     egui::TextEdit::singleline(password_input)
                         .password(true)
-                        .desired_width(f32::INFINITY),
+                        .desired_width(f32::INFINITY)
                 );
                 ui.end_row();
 
                 ui.label("Server URL");
-                ui.add(egui::TextEdit::singleline(server_url_input).desired_width(f32::INFINITY));
+                ui.add(
+                    egui::TextEdit::singleline(server_url_input)
+                        .char_limit(2048)
+                        .hint_text("https://<unifi-domain>:8443")
+                        .desired_width(f32::INFINITY)
+                );
                 ui.end_row();
 
                 ui.label("MAC Address");
-                ui.add(egui::TextEdit::singleline(mac_addr_input).desired_width(f32::INFINITY));
+                ui.add(
+                    egui::TextEdit::singleline(mac_addr_input)
+                        .char_limit(17)
+                        .hint_text("ff:ff:ff:ff:ff:ff")
+                        .desired_width(f32::INFINITY)
+                );
                 ui.end_row();
             });
 
-        ui.checkbox(remember_pass_checked, "Remember Password");
+        let remember_pass_tooltip: &'static str = "Checking this box prevents the password from being cleared between searches. The password will not be saved when the app is closed.";
+        ui.checkbox(remember_pass_checked, "Remember Password").on_hover_text(remember_pass_tooltip);
         ui.checkbox(invalid_certs_checked, "Accept Invalid HTTPS Certificate");
 
         // add "Search Unifi" button
