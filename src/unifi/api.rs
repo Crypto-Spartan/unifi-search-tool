@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use super::devices::{
     ClientDevice, ClientDeviceActive, UnifiDeviceBasic, /*UnifiDeviceFull,*/ UnifiSite,
 };
