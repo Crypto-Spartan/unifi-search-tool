@@ -1,6 +1,6 @@
 use crate::{
     gui::{
-        popup::{GuiError, PopupWindow, WindowMeta},
+        popup::{GuiError, PopupModal, ModalMeta},
         {ChannelsGuiThread, ChannelsSearchThread},
     },
     mac_address::{MacAddress, validation::text_is_valid_mac},
@@ -31,7 +31,7 @@ pub(crate) struct GuiApp<'a> {
     font_size_enum: FontSize,
     gui_input_fields: GuiInputFields,
     gui_channels: ChannelsGuiThread,
-    popup_window_option: Option<PopupWindow<'a>>,
+    popup_modal_option: Option<PopupModal<'a>>,
 }
 
 impl eframe::App for GuiApp<'_> {
@@ -42,7 +42,7 @@ impl eframe::App for GuiApp<'_> {
             font_size_enum,
             gui_input_fields,
             gui_channels,
-            popup_window_option,
+            popup_modal_option,
         } = self;
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -64,7 +64,7 @@ impl eframe::App for GuiApp<'_> {
             GuiApp::create_main_window(
                 ui,
                 gui_input_fields,
-                popup_window_option,
+                popup_modal_option,
                 &mut gui_channels.search_info_tx,
             );
 
@@ -73,9 +73,9 @@ impl eframe::App for GuiApp<'_> {
                 let next_widget_pos = ui.next_widget_position();
                 egui::pos2(window_coords.width(), next_widget_pos.y)
             };
-            GuiApp::handle_popup_window(
+            GuiApp::handle_popup_modal(
                 ctx,
-                popup_window_option,
+                popup_modal_option,
                 main_window_size,
                 &gui_input_fields.mac_addr_input,
                 gui_channels,
@@ -134,7 +134,7 @@ impl Default for GuiApp<'_> {
             font_size_enum,
             gui_input_fields: GuiInputFields::default(),
             gui_channels,
-            popup_window_option: None,
+            popup_modal_option: None,
         }
     }
 }
@@ -182,7 +182,7 @@ impl GuiApp<'_> {
     fn create_main_window(
         ui: &mut egui::Ui,
         gui_input_fields: &mut GuiInputFields,
-        popup_window_option: &mut Option<PopupWindow>,
+        popup_modal_option: &mut Option<PopupModal>,
         search_info_tx: &mut flume::Sender<UnifiSearchInfo>,
     ) {
         let GuiInputFields {
@@ -230,14 +230,14 @@ impl GuiApp<'_> {
         // add "Search Unifi" button
         ui.vertical_centered(|ui| {
             if ui.button("Search Unifi").clicked() {
-                GuiApp::handle_button_click(gui_input_fields, popup_window_option, search_info_tx);
+                GuiApp::handle_button_click(gui_input_fields, popup_modal_option, search_info_tx);
             }
         });
     }
 
     fn handle_button_click(
         gui_input_fields: &mut GuiInputFields,
-        popup_window_option: &mut Option<PopupWindow>,
+        popup_modal_option: &mut Option<PopupModal>,
         search_info_tx: &mut flume::Sender<UnifiSearchInfo>,
     ) {
         // all fields with `ref` are immutable when destructured
@@ -255,7 +255,7 @@ impl GuiApp<'_> {
         || password_input.is_empty()
         || server_url_input.is_empty()
         || mac_addr_input.is_empty() {
-            *popup_window_option = Some(PopupWindow::Error(
+            *popup_modal_option = Some(PopupModal::Error(
                 GuiError::new_standard(
                     "Required Fields",
                     Box::from("Username, Password, Server URL, & MAC Address are all required fields.")
@@ -263,7 +263,7 @@ impl GuiApp<'_> {
             ));
         // if the mac address isn't in a valid format, display error
         } else if !text_is_valid_mac(mac_addr_input.as_bytes()) {
-            *popup_window_option = Some(PopupWindow::Error(
+            *popup_modal_option = Some(PopupModal::Error(
                 GuiError::new_standard(
                     "Invalid MAC Address",
                     Box::from("MAC Address must be formatted like XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX with hexadecimal characters only.")
@@ -271,7 +271,7 @@ impl GuiApp<'_> {
             ));
         // other checks passed, run the search
         } else {
-            *popup_window_option = Some(PopupWindow::SearchProgress(0.));
+            *popup_modal_option = Some(PopupModal::SearchProgress(0.));
 
             let username = username_input.to_string();
             // don't zeroize the password if remember password checkbox is checked
@@ -302,51 +302,51 @@ impl GuiApp<'_> {
         }
     }
 
-    fn handle_popup_window(
+    fn handle_popup_modal(
         ctx: &egui::Context,
-        popup_window_option: &mut Option<PopupWindow>,
+        popup_modal_option: &mut Option<PopupModal>,
         main_window_size: egui::Pos2,
         mac_addr_input: &str,
         gui_channels: &mut ChannelsGuiThread,
     ) {
-        if popup_window_option.is_none() {
+        if popup_modal_option.is_none() {
             return
         }
-        let popup_window = popup_window_option.clone().unwrap();
+        let popup_modal = popup_modal_option.clone().unwrap();
         let popup_metadata = {
             let width = main_window_size.x * 0.7;
             let default_pos = egui::pos2(main_window_size.x / 2., main_window_size.y / 2.);
-            WindowMeta {
+            ModalMeta {
                 ctx,
                 width,
                 default_pos,
             }
         };
 
-        match popup_window {
-            PopupWindow::SearchProgress(percentage) => {
-                PopupWindow::create_search_progress(
+        match popup_modal {
+            PopupModal::SearchProgress(percentage) => {
+                PopupModal::create_search_progress(
                     popup_metadata,
-                    popup_window_option,
+                    popup_modal_option,
                     percentage,
                     mac_addr_input,
                     gui_channels,
                 );
             }
-            PopupWindow::SearchResult(unifi_device) => {
-                PopupWindow::create_search_result(
+            PopupModal::SearchResult(unifi_device) => {
+                PopupModal::create_search_result(
                     popup_metadata,
-                    popup_window_option,
+                    popup_modal_option,
                     unifi_device,
                 );
             }
-            PopupWindow::Error(error) => {
-                PopupWindow::create_error(popup_metadata, popup_window_option, error);
+            PopupModal::Error(error) => {
+                PopupModal::create_error(popup_metadata, popup_modal_option, error);
             }
-            PopupWindow::DisplayCancel => {
-                PopupWindow::create_cancel(
+            PopupModal::DisplayCancel => {
+                PopupModal::create_cancel(
                     popup_metadata,
-                    popup_window_option,
+                    popup_modal_option,
                     &mut gui_channels.device_rx,
                 );
             }

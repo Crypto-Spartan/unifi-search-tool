@@ -2,7 +2,7 @@ use crate::{
     gui::{CancelSignal, ChannelsGuiThread},
     unifi::{api::UnifiAPIError, devices::UnifiDeviceBasic, search::UnifiSearchResult},
 };
-use egui::TextBuffer;
+use egui::{Id, TextBuffer};
 use std::borrow::Cow;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -44,7 +44,7 @@ impl GuiError<'_> {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub(super) enum PopupWindow<'a> {
+pub(super) enum PopupModal<'a> {
     SearchProgress(f32),
     SearchResult(UnifiDeviceBasic),
     Error(GuiError<'a>),
@@ -52,63 +52,53 @@ pub(super) enum PopupWindow<'a> {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub(super) struct WindowMeta<'a> {
+pub(super) struct ModalMeta<'a> {
     pub(super) ctx: &'a egui::Context,
     pub(super) width: f32,
     pub(super) default_pos: egui::Pos2,
 }
 
-impl<'a> PopupWindow<'a> {
-    fn create_window(title: impl Into<egui::WidgetText>, default_width: f32, default_pos: egui::Pos2) -> egui::Window<'a> {
-        egui::Window::new(title)
-            .resizable(false)
-            .collapsible(false)
-            //.auto_sized()
-            .default_width(default_width)
-            .pivot(egui::Align2::CENTER_CENTER)
-            .fixed_pos(default_pos)
-    }
-
+impl<'a> PopupModal<'a> {
     pub(super) fn create_search_progress(
-        popup_metadata: WindowMeta,
-        popup_window_option: &mut Option<PopupWindow>,
+        popup_metadata: ModalMeta,
+        popup_modal_option: &mut Option<PopupModal>,
         mut percentage: f32,
         mac_address: &str,
         gui_channels: &mut ChannelsGuiThread,
     ) {
         // get percentage value from channel to update the progress bar
         if let Ok(new_percentage) = gui_channels.percentage_rx.try_recv() {
-            *popup_window_option = Some(PopupWindow::SearchProgress(new_percentage));
+            *popup_modal_option = Some(PopupModal::SearchProgress(new_percentage));
             percentage = new_percentage;
         }
 
-        // create popup window
-        PopupWindow::create_window("Running Unifi Search", popup_metadata.width, popup_metadata.default_pos)
-            .show(popup_metadata.ctx, |ui| {
-                ui.vertical_centered(|ui| {
-                    ui.label(format!(
-                        "Searching for Unifi device with MAC Address: {}",
-                        mac_address
-                    ));
+        egui::Modal::new(Id::new("Search Progress Modal")).show(popup_metadata.ctx, |ui| {
+            ui.vertical_centered(|ui| {
+                ui.heading("Running Unifi Search");
 
-                    // create progress bar
-                    let progress_bar = {
-                        egui::widgets::ProgressBar::new(percentage)
-                            .show_percentage()
-                            .animate(true)
-                    };
-                    ui.add(progress_bar);
+                ui.label(format!(
+                    "Searching for Unifi device with MAC Address: {}",
+                    mac_address
+                ));
 
-                    // cancel button
-                    if ui.button("Cancel").clicked() {
-                        gui_channels.signal_tx.send(CancelSignal).unwrap();
-                        *popup_window_option = Some(PopupWindow::DisplayCancel);
-                    }
-                });
+                // create progress bar
+                let progress_bar = {
+                    egui::widgets::ProgressBar::new(percentage)
+                        .show_percentage()
+                        .animate(true)
+                };
+                ui.add(progress_bar);
+
+                // cancel button
+                if ui.button("Cancel").clicked() {
+                    gui_channels.signal_tx.send(CancelSignal).unwrap();
+                    *popup_modal_option = Some(PopupModal::DisplayCancel);
+                }
             });
+        });
 
         // return if canceled
-        if *popup_window_option == Some(PopupWindow::DisplayCancel) {
+        if *popup_modal_option == Some(PopupModal::DisplayCancel) {
             return;
         }
 
@@ -117,12 +107,12 @@ impl<'a> PopupWindow<'a> {
             match unifi_search_result {
                 Ok(unifi_search_option) => match unifi_search_option {
                     Some(unifi_device) => {
-                        *popup_window_option =
-                            Some(PopupWindow::SearchResult(unifi_device));
+                        *popup_modal_option =
+                            Some(PopupModal::SearchResult(unifi_device));
                     }
                     None => {
-                        *popup_window_option =
-                            Some(PopupWindow::Error(GuiError::new_info(
+                        *popup_modal_option =
+                            Some(PopupModal::Error(GuiError::new_info(
                                 "Device Not Found",
                                 format!(
                                     "Unable to find device with MAC Address {}",
@@ -133,10 +123,10 @@ impl<'a> PopupWindow<'a> {
                     }
                 },
                 Err(ref unifi_api_error) => {
-                    *popup_window_option = match unifi_api_error {
+                    *popup_modal_option = match unifi_api_error {
                         UnifiAPIError::ClientError { source } => {
                             debug_assert!(source.is_builder());
-                            Some(PopupWindow::Error(GuiError::new_critical(
+                            Some(PopupModal::Error(GuiError::new_critical(
                                 "Reqwest Client Error",
                                 format!(
                                     "Unable to Build Unifi Client\n{}\n{}",
@@ -146,20 +136,20 @@ impl<'a> PopupWindow<'a> {
                             )))
                         }
                         UnifiAPIError::LoginAuthenticationError { url } => {
-                            Some(PopupWindow::Error(GuiError::new_standard(
+                            Some(PopupModal::Error(GuiError::new_standard(
                                 "Login Failed",
                                 format!("Unable to login to {}\n{}", url, unifi_api_error)
                                     .into_boxed_str(),
                             )))
                         }
                         UnifiAPIError::ReqwestError { source } => {
-                            Some(PopupWindow::Error(GuiError::new_standard(
+                            Some(PopupModal::Error(GuiError::new_standard(
                                 "Unifi API Error",
                                 format!("{}\n{}", unifi_api_error, source).into_boxed_str(),
                             )))
                         }
                         UnifiAPIError::JsonError { source, .. } => {
-                            Some(PopupWindow::Error(GuiError::new_critical(
+                            Some(PopupModal::Error(GuiError::new_critical(
                                 "Json Parsing Error",
                                 format!("{}\n{}", unifi_api_error, source).into_boxed_str(),
                             )))
@@ -171,8 +161,8 @@ impl<'a> PopupWindow<'a> {
     }
 
     pub(super) fn create_search_result(
-        popup_metadata: WindowMeta,
-        popup_window_option: &mut Option<PopupWindow>,
+        popup_metadata: ModalMeta,
+        popup_modal_option: &mut Option<PopupModal>,
         unifi_device: UnifiDeviceBasic,
     ) {
         let UnifiDeviceBasic {
@@ -187,82 +177,82 @@ impl<'a> PopupWindow<'a> {
             site,
         } = unifi_device;
 
-        PopupWindow::create_window("Unifi Search Result", popup_metadata.width, popup_metadata.default_pos)
-            .show(popup_metadata.ctx, |ui| {
-                ui.vertical_centered(|ui| {
-                    ui.label("Successfully found device!");
-                });
-
-                // grid of results, grid allows for spacing/formatting
-                egui::Grid::new("some_unique_id #2")
-                    .num_columns(2)
-                    .show(ui, |ui| {
-                        // add device name to the popup, if it's available
-                        if let Some(device_name) = name_option {
-                            PopupWindow::create_search_result_row(
-                                ui, "Device Name:", device_name.as_ref(),
-                            );
-                        }
-
-                        // add device label to the popup, if it's available
-                        // else add the device type & model
-                        if let Some(device_label) = device_label_option {
-                            PopupWindow::create_search_result_row(
-                                ui, "Model / SKU / Product:",
-                                format!("{} / {}",
-                                    device_model, device_label
-                                ).as_str(),
-                            );
-                        } else {
-                            PopupWindow::create_search_result_row(
-                                ui, "Device Type / Model:",
-                                format!("{} / {}",
-                                    device_type.to_uppercase(),
-                                    device_model
-                                ),
-                            );
-                        }
-
-                        // add the name of the Unifi site
-                        PopupWindow::create_search_result_row(
-                            ui, "Unifi Site:", site.as_ref(),
-                        );
-
-                        // add the MAC address of the device found
-                        PopupWindow::create_search_result_row(
-                            ui, "MAC Address:", format!("{mac}"),
-                        );
-
-                        // add device status; ie if the device is connected, offline, or unknown
-                        PopupWindow::create_search_result_row(
-                            // custom state.as_str implementation
-                            ui, "Device Status:", state.as_str(),
-                        );
-
-                        // add adoption status if false
-                        // it's weird that the controller has info on a device that's not adopted
-                        // device status will most likely be `unknown`
-                        if !adopted {
-                            PopupWindow::create_search_result_row(
-                                // custom state.as_str implementation
-                                ui, "Adopted", "False",
-                            );
-                        }
-
-                        // add gateway mode if true
-                        if gateway_mode.is_some_and(|x| x) {
-                            PopupWindow::create_search_result_row(
-                                // custom state.as_str implementation
-                                ui, "Gateway Mode:", "True",
-                            );
-                        }
-                    });
-
-                // close button
-                ui.vertical_centered(|ui| {
-                    PopupWindow::create_close_button(ui, popup_window_option);
-                });
+        egui::Modal::new(Id::new("Search Result Modal")).show(popup_metadata.ctx, |ui| {
+            ui.vertical_centered(|ui| {
+                ui.heading("Unifi Search Result");
+                ui.label("Successfully found device!");
             });
+
+            // grid of results, grid allows for spacing/formatting
+            egui::Grid::new("Search Result Modal - Grid")
+                .num_columns(2)
+                .show(ui, |ui| {
+                    // add device name to the popup, if it's available
+                    if let Some(device_name) = name_option {
+                        PopupModal::create_search_result_row(
+                            ui, "Device Name:", device_name.as_ref(),
+                        );
+                    }
+
+                    // add device label to the popup, if it's available
+                    // else add the device type & model
+                    if let Some(device_label) = device_label_option {
+                        PopupModal::create_search_result_row(
+                            ui, "Model / SKU / Product:",
+                            format!("{} / {}",
+                                device_model, device_label
+                            ).as_str(),
+                        );
+                    } else {
+                        PopupModal::create_search_result_row(
+                            ui, "Device Type / Model:",
+                            format!("{} / {}",
+                                device_type.to_uppercase(),
+                                device_model
+                            ),
+                        );
+                    }
+
+                    // add the name of the Unifi site
+                    PopupModal::create_search_result_row(
+                        ui, "Unifi Site:", site.as_ref(),
+                    );
+
+                    // add the MAC address of the device found
+                    PopupModal::create_search_result_row(
+                        ui, "MAC Address:", format!("{mac}"),
+                    );
+
+                    // add device status; ie if the device is connected, offline, or unknown
+                    PopupModal::create_search_result_row(
+                        // custom state.as_str implementation
+                        ui, "Device Status:", state.as_str(),
+                    );
+
+                    // add adoption status if false
+                    // it's weird that the controller has info on a device that's not adopted
+                    // device status will most likely be `unknown`
+                    if !adopted {
+                        PopupModal::create_search_result_row(
+                            // custom state.as_str implementation
+                            ui, "Adopted", "False",
+                        );
+                    }
+
+                    // add gateway mode if true
+                    if gateway_mode.is_some_and(|x| x) {
+                        PopupModal::create_search_result_row(
+                            // custom state.as_str implementation
+                            ui, "Gateway Mode:", "True",
+                        );
+                    }
+                });
+
+            // close button
+            ui.vertical_centered(|ui| {
+                PopupModal::create_close_button(ui, popup_modal_option);
+            });
+        });
     }
 
     #[inline]
@@ -279,54 +269,54 @@ impl<'a> PopupWindow<'a> {
     }
 
     pub(super) fn create_error(
-        popup_metadata: WindowMeta,
-        popup_window_option: &mut Option<PopupWindow>,
+        popup_metadata: ModalMeta,
+        popup_modal_option: &mut Option<PopupModal>,
         error: GuiError,
     ) {
-        PopupWindow::create_window(error.title.as_str(), popup_metadata.width, popup_metadata.default_pos)
-            .show(popup_metadata.ctx, |ui| {
-                ui.vertical_centered(|ui| {
+        egui::Modal::new(Id::new("Error Modal")).show(popup_metadata.ctx, |ui| {
+            ui.vertical_centered(|ui| {
+                ui.heading(error.title.as_str());
 
-                    // error message
-                    if error.err_lvl == GuiErrorLevel::Critical {
-                        ui.label(&*error.desc);
-                        ui.horizontal(|ui| {
-                            ui.spacing_mut().item_spacing.x = 0.0;
-                            ui.label("Please report this bug to the ");
-                            ui.hyperlink_to("Github Issues Page", "https://github.com/Crypto-Spartan/unifi-search-tool/issues");
-                            ui.label(" and include as much information as possible.")
-                        });
-                    } else {
-                        ui.label(error.desc.as_ref());
-                    }
+                // error message
+                if error.err_lvl == GuiErrorLevel::Critical {
+                    ui.label(&*error.desc);
+                    ui.horizontal(|ui| {
+                        ui.spacing_mut().item_spacing.x = 0.0;
+                        ui.label("Please report this bug to the ");
+                        ui.hyperlink_to("Github Issues Page", "https://github.com/Crypto-Spartan/unifi-search-tool/issues");
+                        ui.label(" and include as much information as possible.")
+                    });
+                } else {
+                    ui.label(error.desc.as_ref());
+                }
 
-                    // close button
-                    PopupWindow::create_close_button(ui, popup_window_option);
-                });
+                // close button
+                PopupModal::create_close_button(ui, popup_modal_option);
             });
+        });
     }
 
     pub(super) fn create_cancel(
-        popup_metadata: WindowMeta,
-        popup_window_option: &mut Option<PopupWindow>,
+        popup_metadata: ModalMeta,
+        popup_modal_option: &mut Option<PopupModal>,
         device_rx: &mut flume::Receiver<UnifiSearchResult>,
     ) {
-        PopupWindow::create_window("Cancel", popup_metadata.width, popup_metadata.default_pos)
-            .show(popup_metadata.ctx, |ui| {
-                ui.vertical_centered(|ui| {
-                    ui.label("Cancel in progress, please wait...");
-                });
+        egui::Modal::new(Id::new("Cancel Modal")).show(popup_metadata.ctx, |ui| {
+            ui.vertical_centered(|ui| {
+                ui.heading("Cancel");
+                ui.label("Cancel in progress, please wait...");
             });
+        });
 
         if let Ok(Ok(None)) = device_rx.recv() {
-            *popup_window_option = None;
+            *popup_modal_option = None;
         }
     }
 
     #[inline]
-    fn create_close_button(ui: &mut egui::Ui, popup_window_option: &mut Option<PopupWindow>) {
+    fn create_close_button(ui: &mut egui::Ui, popup_modal_option: &mut Option<PopupModal>) {
         if ui.button("Close").clicked() {
-            *popup_window_option = None;
+            *popup_modal_option = None;
         }
     }
 }
