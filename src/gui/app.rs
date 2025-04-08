@@ -153,7 +153,7 @@ impl GuiApp<'_> {
     fn create_menu_bar(ui: &mut egui::Ui, font_size_enum: &mut FontSize) {
         // create top menu bar with light/dark buttons & hyperlinks
         egui::menu::bar(ui, |ui| {
-            ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+            ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
                 egui::widgets::global_theme_preference_switch(ui);
                 ui.label(" | ");
                 egui::ComboBox::from_id_salt("ComboBox #1")

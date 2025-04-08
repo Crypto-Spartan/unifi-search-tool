@@ -272,7 +272,7 @@ impl<'a> PopupWindow<'a> {
         value: impl Into<egui::WidgetText>,
     ) {
         ui.label(field);
-        ui.with_layout(egui::Layout::right_to_left(egui::Align::TOP), |ui| {
+        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
             ui.label(value);
         });
         ui.end_row();
