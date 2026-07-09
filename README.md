@@ -62,10 +62,10 @@ $ cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_
 
 ## Star History
 
-<a href="https://star-history.com/#crypto-spartan/unifi-search-tool&Date">
-    <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=crypto-spartan/unifi-search-tool&type=Date&theme=dark" />
-        <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=crypto-spartan/unifi-search-tool&type=Date" />
-        <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=crypto-spartan/unifi-search-tool&type=Date" />
-    </picture>
+<a href="https://www.star-history.com/?repos=crypto-spartan%2Funifi-search-tool&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=crypto-spartan/unifi-search-tool&type=date&theme=dark&legend=top-left&sealed_token=PTlBI8qXtEX94I1ZhI8gp4duhpM7l7NxFWAZdi3uf2CHup-LSKAOUaALVOmnRgj53F8PoGNUIG7yE4pnYS2YrcTdU96AAySb-ehVVPhKJr1IqSxwWTrWRLwZOrVRUPO3l42pncame2rjHRW9Z0r7LkHBDhDabpWS2MezISd8gr5xcoINsGNlYFhcOIVz" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=crypto-spartan/unifi-search-tool&type=date&legend=top-left&sealed_token=PTlBI8qXtEX94I1ZhI8gp4duhpM7l7NxFWAZdi3uf2CHup-LSKAOUaALVOmnRgj53F8PoGNUIG7yE4pnYS2YrcTdU96AAySb-ehVVPhKJr1IqSxwWTrWRLwZOrVRUPO3l42pncame2rjHRW9Z0r7LkHBDhDabpWS2MezISd8gr5xcoINsGNlYFhcOIVz" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=crypto-spartan/unifi-search-tool&type=date&legend=top-left&sealed_token=PTlBI8qXtEX94I1ZhI8gp4duhpM7l7NxFWAZdi3uf2CHup-LSKAOUaALVOmnRgj53F8PoGNUIG7yE4pnYS2YrcTdU96AAySb-ehVVPhKJr1IqSxwWTrWRLwZOrVRUPO3l42pncame2rjHRW9Z0r7LkHBDhDabpWS2MezISd8gr5xcoINsGNlYFhcOIVz" />
+ </picture>
 </a>
